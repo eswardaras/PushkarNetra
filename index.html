@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pushkara Netra — Godavari Pushkaralu 2027 Smart Command &amp; Control Centre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus+SC&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        navy:   { 900:'#0f2557', 800:'#16326e', 700:'#1e4188' },
+        saffron:{ 50:'#fffbeb', 400:'#fbbf24', 500:'#f59e0b', 600:'#d97706', 700:'#b45309' },
+        river:  { 50:'#ecfeff', 300:'#67e8f9', 400:'#22d3ee', 500:'#06b6d4', 600:'#0891b2', 700:'#0e7490' },
+      },
+      fontFamily: {
+        display: ['Segoe UI','system-ui','sans-serif'],
+        mono: ['Consolas','Menlo','monospace'],
+      },
+      boxShadow: {
+        card: '0 1px 3px rgba(15,37,87,.08), 0 4px 16px rgba(15,37,87,.06)',
+      }
+    }
+  }
+}
+</script>
+<style>
+  /* ---------- global ---------- */
+  body { background:linear-gradient(160deg,#f4f7fc 0%,#eef4fb 40%,#fdf7ec 100%); }
+
+  /* full-page background photo with slow Ken Burns zoom + warm wash overlay */
+  @keyframes bgZoom { 0%,100%{transform:scale(1);} 50%{transform:scale(1.08);} }
+  body::before {
+    content:''; position:fixed; inset:0; z-index:-2;
+    background:url('assets/ghat-bg.jpg') center/cover no-repeat;
+    animation:bgZoom 45s ease-in-out infinite; will-change:transform;
+  }
+  body::after {
+    content:''; position:fixed; inset:0; z-index:-1;
+    background:linear-gradient(160deg, rgba(244,247,252,.90) 0%, rgba(238,244,251,.84) 40%, rgba(253,243,226,.78) 100%);
+  }
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-thumb { background:#c7d4ea; border-radius:3px; }
+
+  /* ---------- animations ---------- */
+  @keyframes pulseDot { 0%,100%{opacity:1; transform:scale(1);} 50%{opacity:.35; transform:scale(.8);} }
+  .pulse-dot { animation:pulseDot 1.6s ease-in-out infinite; }
+
+  @keyframes blinkRec { 0%,49%{opacity:1;} 50%,100%{opacity:.15;} }
+  .rec-blink { animation:blinkRec 1s steps(1) infinite; }
+
+  @keyframes waveMove { 0%{transform:translateX(0);} 100%{transform:translateX(-50%);} }
+  .wave-1 { animation:waveMove 9s linear infinite; }
+  .wave-2 { animation:waveMove 14s linear infinite; opacity:.6; }
+  .wave-3 { animation:waveMove 22s linear infinite; opacity:.35; }
+
+  @keyframes scanline { 0%{top:-10%;} 100%{top:110%;} }
+  .scanline {
+    position:absolute; left:0; right:0; height:22%;
+    background:linear-gradient(to bottom, rgba(34,211,238,0), rgba(34,211,238,.18), rgba(34,211,238,0));
+    animation:scanline 4.5s linear infinite;
+  }
+
+  @keyframes noiseShift {
+    0%{background-position:0 0;} 25%{background-position:-14px 9px;}
+    50%{background-position:11px -7px;} 75%{background-position:-6px -13px;} 100%{background-position:0 0;}
+  }
+  .cctv-noise {
+    background-image:repeating-radial-gradient(circle at 17% 32%, rgba(255,255,255,.05) 0 1px, transparent 1px 3px),
+                     repeating-radial-gradient(circle at 73% 61%, rgba(255,255,255,.04) 0 1px, transparent 1px 4px);
+    animation:noiseShift .35s steps(4) infinite;
+  }
+
+  @keyframes drift1 { 0%{transform:translate(0,0);} 25%{transform:translate(26px,10px);} 50%{transform:translate(48px,-6px);} 75%{transform:translate(20px,14px);} 100%{transform:translate(0,0);} }
+  @keyframes drift2 { 0%{transform:translate(0,0);} 33%{transform:translate(-30px,12px);} 66%{transform:translate(-12px,-14px);} 100%{transform:translate(0,0);} }
+  @keyframes drift3 { 0%{transform:translate(0,0);} 40%{transform:translate(18px,-16px);} 80%{transform:translate(-22px,8px);} 100%{transform:translate(0,0);} }
+  .crowd-dot { position:absolute; width:5px; height:5px; border-radius:9999px; background:rgba(255,255,255,.85); box-shadow:0 0 4px rgba(255,255,255,.6); }
+  .d1{animation:drift1 11s ease-in-out infinite;} .d2{animation:drift2 9s ease-in-out infinite;} .d3{animation:drift3 13s ease-in-out infinite;}
+
+  @keyframes dronePan { 0%{background-position:0% 0%;} 50%{background-position:100% 30%;} 100%{background-position:0% 0%;} }
+  .drone-pan { background-size:160% 160%; animation:dronePan 26s ease-in-out infinite; }
+
+  @keyframes tickerScroll { 0%{transform:translateX(0);} 100%{transform:translateX(-50%);} }
+  .ticker { animation:tickerScroll 38s linear infinite; }
+  .ticker:hover { animation-play-state:paused; }
+
+  @keyframes glowPulse {
+    0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.30);}
+    50%{box-shadow:0 0 20px 5px rgba(245,158,11,.22);}
+  }
+  .glow-saffron { animation:glowPulse 3s ease-in-out infinite; }
+
+  @keyframes riseIn { from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
+  .rise-in { animation:riseIn .7s ease-out both; }
+  .rise-in-1{animation-delay:.05s;} .rise-in-2{animation-delay:.15s;} .rise-in-3{animation-delay:.25s;}
+  .rise-in-4{animation-delay:.35s;} .rise-in-5{animation-delay:.45s;} .rise-in-6{animation-delay:.55s;}
+
+  @keyframes gaugeSweep { from{stroke-dashoffset:264;} }
+  .gauge-arc { animation:gaugeSweep 1.8s ease-out both; }
+
+  @keyframes flowArrow { 0%{transform:translateX(-4px); opacity:.2;} 50%{opacity:1;} 100%{transform:translateX(4px); opacity:.2;} }
+  .flow-arrow { animation:flowArrow 1.2s ease-in-out infinite; }
+  .flow-arrow-out { animation:flowArrow 1.2s ease-in-out infinite reverse; }
+
+  .density-bar { transition:width 1.4s cubic-bezier(.4,0,.2,1); }
+
+  /* ===== glass cards — EAM-style rotating gradient border ===== */
+  /* @keyframes cardReveal {
+    from { opacity:0; transform:translateY(28px) scale(.96); }
+    to   { opacity:1; transform:translateY(0)    scale(1);   }
+  } */
+  @keyframes sparkleTwinkle {
+    0%, 100% { opacity:0; transform:scale(.3) rotate(0deg); }
+    50%      { opacity:1; transform:scale(1)  rotate(180deg); }
+  }
+
+  /* same technique as the EAM dashboard: an animated custom property drives
+     the conic-gradient's angle. background-clip:border-box on its own paints
+     across the WHOLE box (border + interior) — it's the opaque padding-box
+     layer underneath that blocks it from the interior, leaving colour only
+     on the border stroke. */
+  @property --glow-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+  @keyframes cardBorderSpin { to { --glow-angle: 360deg; } }
+
+  .glass-card {
+    position:relative; overflow:hidden; isolation:isolate;
+    border-radius:1rem;
+    background:rgba(255,255,255,.82);
+    border:1.5px solid rgba(15,37,87,.14);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    box-shadow:0 1px 0 rgba(255,255,255,.5) inset;
+    transition:transform .45s cubic-bezier(.22,.9,.3,1), box-shadow .45s ease, border-color .4s ease;
+    animation:cardReveal .7s cubic-bezier(.34,1.4,.64,1) both;
+  }
+  .glass-card:hover {
+    transform:translateY(-5px);
+    border: 2px solid transparent;
+    background:
+      linear-gradient(rgba(255,255,255,.9), rgba(255,255,255,.9)) padding-box,
+      conic-gradient(from var(--glow-angle),
+        transparent 0%,   transparent 72%,
+        #f5a623     72%,  #f5a623     93%,
+        #ffffff     93%,  #ffffff     97%,
+        transparent 97%,  transparent 100%) border-box;
+    animation: cardBorderSpin 2.5s linear infinite !important;
+  }
+
+  /* pulsing "live" glow halo, layered on top of the spinning border */
+  .glass-card::after {
+    content:''; position:absolute; inset:0; z-index:0; border-radius:inherit;
+    pointer-events:none;
+    box-shadow:0 0 0 0 rgba(245,158,11,0);
+    opacity:0;
+    transition:opacity .4s ease;
+  }
+  .glass-card:hover::after {
+    opacity:1;
+    animation:cardGlowPulse 1.6s ease-in-out infinite;
+  }
+  @keyframes cardGlowPulse {
+    0%,100% { box-shadow:0 0 14px 2px rgba(245,158,11,.35); }
+    50%     { box-shadow:0 0 28px 6px rgba(245,158,11,.65); }
+  }
+
+  /* small twinkling sparkles (injected by JS at random spots) */
+  .glass-card .sparkle {
+    position:absolute; z-index:4; pointer-events:none; opacity:0;
+    color:#fbbf24; text-shadow:0 0 6px rgba(251,191,36,.95), 0 0 14px rgba(255,255,255,.7);
+    animation:sparkleTwinkle 3.4s ease-in-out infinite;
+  }
+
+  /* ===== dock nav (sticky, above the ticker footer) — Apple-dock-style
+     hover magnification + tooltip, reskinned to match the glass/light
+     theme instead of the reference's flat gray background ===== */
+  .dock-item {
+    position:relative;
+    display:flex; align-items:center; justify-content:center;
+    list-style:none;
+  }
+  .dock-btn {
+    display:flex; align-items:center; justify-content:center;
+    width:44px; height:44px;
+    border-radius:14px;
+    background:rgba(255,255,255,.85);
+    border:1px solid rgba(15,37,87,.14);
+    box-shadow:0 2px 8px rgba(15,37,87,.08);
+    color:#475569;
+    cursor:pointer;
+    transition:transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease, background .3s ease, color .3s ease, border-color .3s ease;
+    transform-origin:bottom center;
+  }
+  .dock-item:hover .dock-btn {
+    transform:scale(1.35) translateY(-6px);
+    color:#0f2557;
+    border-color:rgba(15,37,87,.22);
+    box-shadow:0 12px 26px rgba(15,37,87,.2);
+  }
+  .dock-item.active .dock-btn {
+    background:linear-gradient(135deg,#0ea472,#059669);
+    color:#fff;
+    border-color:transparent;
+    box-shadow:0 4px 14px rgba(5,150,105,.35);
+  }
+  .dock-tooltip {
+    position:absolute; bottom:100%; left:50%;
+    transform:translate(-50%, -4px);
+    margin-bottom:6px;
+    padding:4px 10px;
+    border-radius:8px;
+    background:#0f2557;
+    color:#fff;
+    font-size:11px; font-weight:600; white-space:nowrap;
+    opacity:0; pointer-events:none;
+    transition:opacity .25s ease, transform .25s ease;
+    z-index:10;
+  }
+  .dock-tooltip::after {
+    content:''; position:absolute; top:100%; left:50%;
+    transform:translateX(-50%);
+    border:5px solid transparent; border-top-color:#0f2557;
+  }
+  .dock-item:hover .dock-tooltip { opacity:1; transform:translate(-50%, -10px); }
+
+  /* staggered reveal (re-asserted after the animation shorthand above) */
+  .glass-card.rise-in-1 { animation-delay:.10s; }
+  .glass-card.rise-in-2 { animation-delay:.22s; }
+  .glass-card.rise-in-3 { animation-delay:.34s; }
+  .glass-card.rise-in-4 { animation-delay:.46s; }
+  .glass-card.rise-in-5 { animation-delay:.58s; }
+  .glass-card.rise-in-6 { animation-delay:.70s; }
+
+  .tricolor { background:linear-gradient(90deg,#f59e0b 0%,#f59e0b 33%,#f8fafc 33%,#f8fafc 66%,#16a34a 66%,#16a34a 100%); }
+
+  /* floating festival logo */
+  @keyframes floaty { 0%,100%{transform:translateY(0) rotate(-1.5deg);} 50%{transform:translateY(-5px) rotate(1.5deg);} }
+  .floaty { animation:floaty 4.5s ease-in-out infinite; }
+
+  /* animated gradient title */
+  @keyframes titleGrad { 0%{background-position:0% 50%;} 100%{background-position:200% 50%;} }
+  .title-grad {
+    font-family:'Marcellus SC', serif;
+    background:linear-gradient(90deg,#0f2557 0%,#0891b2 30%,#d97706 55%,#0f2557 80%,#0f2557 100%);
+    background-size:200% auto; -webkit-background-clip:text; background-clip:text; color:transparent;
+    animation:titleGrad 7s linear infinite;
+  }
+
+  .kpi-value { font-family:'Marcellus SC', serif !important; }
+
+  .hero-title { font-family:'Marcellus SC', serif; }
+
+  h1, h2 { font-family:'Marcellus SC', serif; }
+
+</style>
+</head>
+<body class="text-slate-700 font-display min-h-screen">
+
+<!-- ============ NATIONAL STRIP ============ -->
+<div class="tricolor h-1.5 w-full"></div>
+
+<!-- ============ HEADER ============ -->
+<header class="bg-white/95 border-b border-slate-200 backdrop-blur sticky top-0 z-50 shadow-card">
+  <div class="max-w-[1700px] mx-auto px-4 py-2.5 flex items-center gap-4">
+
+    <!-- AP Govt emblem -->
+    <div class="flex items-center gap-3 shrink-0">
+      <div class="w-14 h-14 rounded-full bg-gradient-to-br from-saffron-400 to-saffron-600 p-[2px] glow-saffron">
+        <div class="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
+          <img src="assets/ap-logo.png" alt="Government of Andhra Pradesh" class="w-12 h-12 object-contain">
+        </div>
+      </div>
+      <img src="assets/pushkaralu-logo.png" alt="Godavari Pushkaralu 2027" class="w-14 h-14 object-contain floaty drop-shadow-lg">
+      <div class="leading-tight">
+        <div class="text-[10px] tracking-[.25em] text-saffron-700 font-semibold">GOVERNMENT OF ANDHRA PRADESH</div>
+        <h1 class="text-xl font-bold title-grad">PUSHKARA NETRA</h1>
+        <div class="text-[11px] text-slate-500">పుష్కర నేత్ర · Godavari Pushkaralu 2027 · Smart Command &amp; Control Centre</div>
+      </div>
+    </div>
+
+    <!-- centre status -->
+    <div class="flex-1 flex items-center justify-center gap-6">
+      <div class="hidden lg:flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-full px-4 py-1.5">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 pulse-dot"></span>
+        <span class="text-xs font-semibold text-emerald-700">SYSTEM LIVE</span>
+        <span class="text-xs text-slate-300">|</span>
+        <span class="text-xs text-slate-600 font-mono" id="clock">--:--:--</span>
+        <span class="text-xs text-slate-400">IST</span>
+      </div>
+      <div class="hidden xl:flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-full px-4 py-1.5">
+        <span class="text-xs text-slate-500">Alert level:</span>
+        <span class="text-xs font-bold text-amber-600">⚠ MODERATE</span>
+      </div>
+    </div>
+
+    <!-- Leadership -->
+    <div class="flex items-center gap-4 shrink-0">
+      <div class="flex items-center gap-2.5">
+        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-saffron-400 to-amber-600 p-[2px]">
+          <img src="assets/cm.png" alt="Hon'ble Chief Minister" class="w-full h-full rounded-full object-cover object-top bg-white">
+        </div>
+        <div class="leading-tight hidden md:block">
+          <div class="text-[11px] font-bold text-navy-900">Sri N. Chandrababu Naidu</div>
+          <div class="text-[10px] text-saffron-700">Hon'ble Chief Minister</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-river-400 to-river-600 p-[2px]">
+          <img src="assets/deputy-cm.jpg" alt="Hon'ble Deputy Chief Minister" class="w-full h-full rounded-full object-cover object-top bg-white">
+        </div>
+        <div class="leading-tight hidden md:block">
+          <div class="text-[11px] font-bold text-navy-900">Sri Konidela Pawan Kalyan</div>
+          <div class="text-[10px] text-river-700">Hon'ble Deputy Chief Minister</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-[1700px] mx-auto px-4 py-4 space-y-4">
+
+  <!-- ============ HERO HEADER ============ -->
+  <section class="glass-card rounded-3xl p-6 md:p-8 flex flex-col md:flex-row md:items-end justify-between gap-6 rise-in rise-in-1">
+    <div class="flex-1">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/70 border border-slate-200 text-[11px] font-bold tracking-wider text-saffron-600 uppercase mb-4">
+        📍 Live Operations · Godavari Riverfront
+      </div>
+      <h1 class="hero-title text-3xl md:text-4xl tracking-tight text-navy-900">
+        Godavari <span class="text-saffron-600">Pushkaralu</span>
+      </h1>
+      <p class="mt-2 text-sm text-slate-600 max-w-xl leading-relaxed">
+        Unified command view across 7 bathing ghats, 296 CCTV nodes, 16 drone patrols and river telemetry — protecting every pilgrim at the sacred confluence.
+      </p>
+    </div>
+
+    <div class="flex flex-wrap gap-3 justify-center md:justify-end shrink-0">
+      <div class="glass-card rounded-2xl px-5 py-3 text-center md:text-right">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Live Weather · Rajahmundry</div>
+        <div class="mt-1 text-2xl font-bold text-amber-600 kpi-value" id="weatherTemp">34°C</div>
+        <div class="mt-1 text-[11px] text-slate-600" id="weatherDesc">☀ Clear · Feels like 37°C</div>
+      </div>
+
+      <div class="glass-card rounded-2xl px-5 py-3 text-center md:text-right">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Air Quality Index</div>
+        <div class="mt-1 text-2xl font-bold text-emerald-600 kpi-value" id="aqiValue">78</div>
+        <div class="mt-1 text-[11px] text-slate-600" id="aqiDesc">Satisfactory · PM2.5 33 µg/m³</div>
+      </div>
+
+      <div class="glass-card rounded-2xl px-5 py-3 text-center md:text-right">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">UV Index</div>
+        <div class="mt-1 text-2xl font-bold text-rose-600 kpi-value" id="uvValue">7</div>
+        <div class="mt-1 text-[11px] text-slate-600" id="uvDesc">High · use sunscreen</div>
+      </div>
+
+      <div class="glass-card rounded-2xl px-5 py-3 text-center md:text-right">
+        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Next Auspicious Snan</div>
+        <div class="mt-1 text-2xl font-bold text-navy-900 kpi-value font-mono" id="muhurthamCountdown">--:--:--</div>
+        <div class="mt-1 text-[11px] text-slate-600">Evening Harathi · 18:30 IST</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ KPI ROW ============ -->
+  <section class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+
+    <div class="glass-card rise-in-1 relative rounded-2xl p-4">
+      <div class="text-[11px] uppercase tracking-wider text-slate-500">Pilgrims on ghats now</div>
+      <div class="mt-1 text-3xl font-bold text-navy-900 font-mono kpi-value" id="kpiLive">0</div>
+      <div class="mt-1 text-[11px] text-emerald-600 font-semibold">▲ live headcount · AI vision</div>
+      <span class="absolute top-3 right-3 w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></span>
+    </div>
+
+    <div class="glass-card rise-in-2 relative rounded-2xl p-4">
+      <div class="text-[11px] uppercase tracking-wider text-slate-500">Footfall today</div>
+      <div class="mt-1 text-3xl font-bold text-saffron-600 font-mono kpi-value" id="kpiToday">0</div>
+      <div class="mt-1 text-[11px] text-slate-500">since 04:00 muhurtham</div>
+    </div>
+
+    <div class="glass-card rise-in-3 relative rounded-2xl p-4">
+      <div class="text-[11px] uppercase tracking-wider text-slate-500">River flow · Dowleswaram</div>
+      <div class="mt-1 text-3xl font-bold text-river-600 font-mono kpi-value"><span id="kpiFlow">0</span></div>
+      <div class="mt-1 text-[11px] text-slate-500">cusecs discharge</div>
+      <span class="absolute top-3 right-3 w-2 h-2 rounded-full bg-river-500 pulse-dot"></span>
+    </div>
+
+    <div class="glass-card rise-in-4 relative rounded-2xl p-4">
+      <div class="text-[11px] uppercase tracking-wider text-slate-500">Water level</div>
+      <div class="mt-1 text-3xl font-bold text-navy-900 font-mono kpi-value"><span id="kpiLevel">0</span><span class="text-base text-slate-400"> m</span></div>
+      <div class="mt-1 text-[11px] text-emerald-600 font-semibold">✔ 2.1 m below danger mark</div>
+    </div>
+
+    <div class="glass-card rise-in-5 relative rounded-2xl p-4">
+      <div class="text-[11px] uppercase tracking-wider text-slate-500">Surveillance online</div>
+      <div class="mt-1 text-3xl font-bold text-navy-900 font-mono kpi-value">312<span class="text-base text-slate-400">/318</span></div>
+      <div class="mt-1 text-[11px] text-slate-500">CCTV 296 · Drones 16 🛸</div>
+    </div>
+
+    <div class="glass-card glass-amber rise-in-6 relative rounded-2xl p-4">
+      <div class="text-[11px] uppercase tracking-wider text-amber-700 font-semibold">Active alerts</div>
+      <div class="mt-1 text-3xl font-bold text-amber-600 font-mono kpi-value" id="kpiAlerts">3</div>
+      <div class="mt-1 text-[11px] text-amber-700">⚠ 1 crowd surge · 2 medical</div>
+      <span class="absolute top-3 right-3 w-2 h-2 rounded-full bg-amber-500 pulse-dot"></span>
+    </div>
+  </section>
+
+  <!-- ============ ROW 2 : GHAT DENSITY + RIVER ============ -->
+  <section class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+
+    <!-- Ghat crowd density -->
+    <div class="xl:col-span-2 glass-card rounded-2xl p-4 rise-in rise-in-2">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <h2 class="font-bold text-navy-900">Ghat-wise Crowd Density</h2>
+          <div class="text-[11px] text-slate-500">AI headcount from CCTV + drone vision · refreshed every 30 s</div>
+        </div>
+        <div class="flex gap-3 text-[10px] text-slate-600">
+          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-emerald-500"></span>Safe &lt;60%</span>
+          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-amber-500"></span>Watch 60–85%</span>
+          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-rose-500"></span>Critical &gt;85%</span>
+        </div>
+      </div>
+      <div id="ghatList" class="space-y-2.5"><!-- rows injected by JS --></div>
+    </div>
+
+    <!-- River monitoring -->
+    <div class="glass-card rounded-2xl p-4 rise-in rise-in-3 flex flex-col">
+      <h2 class="font-bold text-navy-900">Godavari River Monitoring</h2>
+      <div class="text-[11px] text-slate-500 mb-3">IoT sensors · CWC gauge, Dowleswaram Barrage</div>
+
+      <!-- flow intensity gauge -->
+      <div class="flex items-center gap-4">
+        <div class="relative w-32 h-32 shrink-0">
+          <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#e2e8f0" stroke-width="10"/>
+            <circle id="flowGauge" cx="50" cy="50" r="42" fill="none" stroke="#0891b2" stroke-width="10"
+                    stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="106" class="gauge-arc"/>
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <div class="text-2xl font-bold text-river-700 font-mono kpi-value" id="intensityPct">60%</div>
+            <div class="text-[9px] uppercase tracking-wider text-slate-500">flow intensity</div>
+          </div>
+        </div>
+        <div class="space-y-2 text-xs flex-1">
+          <div class="flex justify-between"><span class="text-slate-500">Surface velocity</span><span class="font-mono text-navy-900 font-semibold" id="rvVel">1.8 m/s</span></div>
+          <div class="flex justify-between"><span class="text-slate-500">Bathing depth (ghat edge)</span><span class="font-mono text-navy-900 font-semibold">1.2 m</span></div>
+          <div class="flex justify-between"><span class="text-slate-500">Water quality index</span><span class="font-mono text-emerald-600 font-semibold">Good · 82</span></div>
+          <div class="flex justify-between"><span class="text-slate-500">Upstream release (Polavaram)</span><span class="font-mono text-navy-900 font-semibold" id="rvRel">28,400 cusecs</span></div>
+          <div class="flex justify-between"><span class="text-slate-500">Bathing advisory</span><span class="font-bold text-emerald-600">✔ SAFE</span></div>
+        </div>
+      </div>
+
+      <!-- animated river -->
+      <div class="relative mt-4 h-28 rounded-xl overflow-hidden bg-gradient-to-b from-sky-100 to-river-50 border border-slate-200">
+        <div class="absolute bottom-0 left-0 w-[200%] wave-3">
+          <svg viewBox="0 0 1200 80" class="w-full h-20" preserveAspectRatio="none"><path d="M0 40 Q 75 10 150 40 T 300 40 T 450 40 T 600 40 T 750 40 T 900 40 T 1050 40 T 1200 40 V80 H0 Z" fill="#0891b2"/></svg>
+        </div>
+        <div class="absolute bottom-0 left-0 w-[200%] wave-2">
+          <svg viewBox="0 0 1200 80" class="w-full h-16" preserveAspectRatio="none"><path d="M0 40 Q 100 15 200 40 T 400 40 T 600 40 T 800 40 T 1000 40 T 1200 40 V80 H0 Z" fill="#06b6d4"/></svg>
+        </div>
+        <div class="absolute bottom-0 left-0 w-[200%] wave-1">
+          <svg viewBox="0 0 1200 80" class="w-full h-12" preserveAspectRatio="none"><path d="M0 45 Q 60 25 120 45 T 240 45 T 360 45 T 480 45 T 600 45 T 720 45 T 840 45 T 960 45 T 1080 45 T 1200 45 V80 H0 Z" fill="#22d3ee" opacity=".8"/></svg>
+        </div>
+        <div class="absolute top-2 left-3 text-[10px] font-mono text-river-700 font-semibold">GODAVARI @ PUSHKAR GHAT · LIVE SENSOR FEED</div>
+        <div class="absolute top-2 right-3 flex items-center gap-1 text-[10px] font-mono text-emerald-600 font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 pulse-dot"></span>TELEMETRY OK</div>
+      </div>
+
+      <!-- 12h level sparkline -->
+      <div class="mt-4">
+        <div class="flex justify-between text-[10px] text-slate-500 mb-1"><span>Water level — last 12 h</span><span class="text-rose-500 font-mono">danger: 17.75 m</span></div>
+        <svg viewBox="0 0 300 60" class="w-full h-14">
+          <line x1="0" y1="12" x2="300" y2="12" stroke="#f43f5e" stroke-width="1" stroke-dasharray="4 4" opacity=".6"/>
+          <path d="M0 44 L25 43 L50 41 L75 42 L100 39 L125 37 L150 38 L175 35 L200 34 L225 32 L250 33 L275 31 L300 30"
+                fill="none" stroke="#0891b2" stroke-width="2" stroke-linecap="round"/>
+          <path d="M0 44 L25 43 L50 41 L75 42 L100 39 L125 37 L150 38 L175 35 L200 34 L225 32 L250 33 L275 31 L300 30 V60 H0 Z"
+                fill="url(#lvlGrad)" opacity=".3"/>
+          <defs><linearGradient id="lvlGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0891b2"/><stop offset="1" stop-color="#0891b2" stop-opacity="0"/></linearGradient></defs>
+          <circle cx="300" cy="30" r="3" fill="#0891b2"><animate attributeName="opacity" values="1;.3;1" dur="1.6s" repeatCount="indefinite"/></circle>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ROW 3 : SURVEILLANCE + GATES ============ -->
+  <section class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+
+    <!-- surveillance wall -->
+    <div class="xl:col-span-2 glass-card rounded-2xl p-4 rise-in rise-in-3">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <h2 class="font-bold text-navy-900">Live Surveillance Wall <span class="text-[10px] font-normal text-slate-400 ml-1">(real public live feeds standing in for restricted CCTV — POC)</span></h2>
+          <div class="text-[11px] text-slate-500">296 CCTV · 16 drones · AI anomaly detection on every stream</div>
+        </div>
+        <button id="openVideoWallBtn" class="text-[11px] font-semibold bg-navy-900 hover:bg-navy-800 text-white rounded-lg px-3 py-1.5 transition">⛶ Full video wall</button>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <!-- MAIN feed (big) — Kashi Vishwanath Temple, Varanasi. Promoted to
+             the main tile per request. Real, confirmed actively live. -->
+        <div class="col-span-2 row-span-2 relative rounded-xl overflow-hidden border-2 border-emerald-400 aspect-video md:aspect-auto bg-black">
+          <iframe id="feed-1" class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/live_stream?channel=UCdMj2twWfMHXrWgX5oVdoyA&autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&playsinline=1&enablejsapi=1" title="Real live public webcam feed" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen loading="lazy"></iframe>
+          <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 pointer-events-none"></div>
+          <div class="scanline"></div>
+          <!-- HUD corners -->
+          <div class="absolute inset-0 border-[14px] border-transparent pointer-events-none"
+               style="background:linear-gradient(#22d3ee55,#22d3ee55) left top/26px 2px no-repeat, linear-gradient(#22d3ee55,#22d3ee55) left top/2px 26px no-repeat, linear-gradient(#22d3ee55,#22d3ee55) right top/26px 2px no-repeat, linear-gradient(#22d3ee55,#22d3ee55) right top/2px 26px no-repeat, linear-gradient(#22d3ee55,#22d3ee55) left bottom/26px 2px no-repeat, linear-gradient(#22d3ee55,#22d3ee55) left bottom/2px 26px no-repeat, linear-gradient(#22d3ee55,#22d3ee55) right bottom/26px 2px no-repeat, linear-gradient(#22d3ee55,#22d3ee55) right bottom/2px 26px no-repeat;"></div>
+          <div id="feed-1-label" class="absolute top-2 left-3 flex items-center gap-2 text-[10px] font-mono text-white">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 rec-blink"></span>LIVE · KASHI VISHWANATH TEMPLE (real feed demo)
+          </div>
+          <div class="absolute top-2 right-3 text-[10px] font-mono text-river-300">VARANASI · GARBHAGRIHA CAM</div>
+          <div class="absolute bottom-2 left-3 text-[10px] font-mono text-emerald-300">AI COUNT: <span id="droneCount">4,218</span> persons · density 64%</div>
+          <div class="absolute bottom-2 right-3 text-[10px] font-mono text-slate-300" id="ts1">--:--:--</div>
+        </div>
+
+        <!-- CCTV tiles -->
+        <!-- Second REAL live feed — SVBC/TTD's official Tirupati Balaji temple
+             channel, confirmed actively live (not simulated). -->
+        <div class="relative rounded-xl overflow-hidden border-2 border-emerald-400 aspect-video bg-black">
+          <iframe id="feed-2" class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/live_stream?channel=UCTboTRX74UydvU_cBdm_cCQ&autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&playsinline=1&enablejsapi=1" title="Real live public webcam feed" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen loading="lazy"></iframe>
+          <div id="feed-2-label" class="absolute top-1.5 left-2 flex items-center gap-1.5 text-[9px] font-mono text-white pointer-events-none"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 rec-blink"></span>LIVE · REAL PUBLIC FEED</div>
+          <div class="absolute bottom-1.5 left-2 text-[9px] font-mono text-emerald-300 pointer-events-none">SVBC TTD · Tirupati (demo)</div>
+          <div class="absolute bottom-1.5 right-2 text-[9px] font-mono text-slate-400 pointer-events-none" id="ts2">--:--</div>
+        </div>
+
+        <!-- Third REAL live feed — Jay Jagannath TV's official Puri Jagannath
+             temple channel, confirmed actively live. Kept the SURGE DETECTED
+             alert overlay (it's illustrative, tied to the alert feed's
+             narrative) on top of the real video underneath. -->
+        <div class="relative rounded-xl overflow-hidden border-2 border-amber-400 aspect-video bg-black">
+          <iframe id="feed-3" class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/live_stream?channel=UCET-LB-LgAuDS-Cy8nfH4-w&autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&playsinline=1&enablejsapi=1" title="Real live public webcam feed" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen loading="lazy"></iframe>
+          <div id="feed-3-label" class="absolute top-1.5 left-2 flex items-center gap-1.5 text-[9px] font-mono text-white pointer-events-none"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 rec-blink"></span>CAM-052 · SARASWATI GHAT (real feed demo)</div>
+          <div class="absolute bottom-1.5 left-2 text-[9px] font-mono text-amber-300 font-bold pointer-events-none">⚠ SURGE DETECTED</div>
+          <div class="absolute bottom-1.5 right-2 text-[9px] font-mono text-slate-400 pointer-events-none" id="ts3">--:--</div>
+        </div>
+
+        <!-- Demoted from the main tile — Palani Murugan Temple live darshan
+             (Thamirabarani TV), confirmed actively live. Replaces the earlier
+             EarthCam Times Square feed. -->
+        <div class="relative rounded-xl overflow-hidden border border-slate-300 aspect-video bg-black">
+          <iframe id="feed-4" class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/PpnpnT4P_60?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&playsinline=1&enablejsapi=1" title="Real live public webcam feed" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen loading="lazy"></iframe>
+          <div id="feed-4-label" class="absolute top-1.5 left-2 flex items-center gap-1.5 text-[9px] font-mono text-white pointer-events-none"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 rec-blink"></span>DRONE-07 · PUSHKAR GHAT AERIAL (real feed demo)</div>
+          <div class="absolute bottom-1.5 left-2 text-[9px] font-mono text-slate-400 pointer-events-none" id="ts4">--:--</div>
+        </div>
+
+        <!-- Fourth REAL live feed — EarthCam's Abbey Road Crossing (London),
+             confirmed actively live. Standing in for vehicle/traffic footage
+             since no public feed of the actual parking lot exists. -->
+        <div class="relative rounded-xl overflow-hidden border border-slate-300 aspect-video bg-black">
+          <iframe id="feed-5" class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/M3EYAY2MftI?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&playsinline=1&enablejsapi=1" title="Real live public webcam feed" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen loading="lazy"></iframe>
+          <div id="feed-5-label" class="absolute top-1.5 left-2 flex items-center gap-1.5 text-[9px] font-mono text-white pointer-events-none"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 rec-blink"></span>CAM-233 · PARKING P-2 (real feed demo)</div>
+          <div class="absolute bottom-1.5 left-2 text-[9px] font-mono text-slate-300 pointer-events-none">VEHICLES: 1,842 / 2,500</div>
+          <div class="absolute bottom-1.5 right-2 text-[9px] font-mono text-slate-400 pointer-events-none" id="ts5">--:--</div>
+        </div>
+
+        <!-- Fifth REAL live feed — Shibuya Scramble Crossing (Tokyo),
+             confirmed actively live. Standing in for crowd/queue footage. -->
+        <div class="relative rounded-xl overflow-hidden border border-slate-300 aspect-video bg-black">
+          <iframe id="feed-6" class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/8H3nRCFVR6Y?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&playsinline=1&enablejsapi=1" title="Real live public webcam feed" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen loading="lazy"></iframe>
+          <div id="feed-6-label" class="absolute top-1.5 left-2 flex items-center gap-1.5 text-[9px] font-mono text-white pointer-events-none"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 rec-blink"></span>CAM-087 · QUEUE CORRIDOR Q-1 (real feed demo)</div>
+          <div class="absolute bottom-1.5 left-2 text-[9px] font-mono text-river-300 pointer-events-none">WAIT TIME ≈ 24 min</div>
+          <div class="absolute bottom-1.5 right-2 text-[9px] font-mono text-slate-400 pointer-events-none" id="ts6">--:--</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- gate management -->
+    <div class="glass-card rounded-2xl p-4 rise-in rise-in-4">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <h2 class="font-bold text-navy-900">Smart Gate Management</h2>
+          <div class="text-[11px] text-slate-500">RFID + turnstile counters · auto throttling</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[10px] text-slate-500">NET ON GHATS</div>
+          <div class="font-mono font-bold text-navy-900 kpi-value" id="gateNet">+41,300</div>
+        </div>
+      </div>
+      <div id="gateList" class="space-y-2"><!-- injected --></div>
+
+      <div class="mt-4 rounded-xl bg-river-50 border border-river-500/30 p-3">
+        <div class="text-[11px] font-semibold text-river-700 mb-1.5">🤖 AI RECOMMENDATION</div>
+        <p class="text-xs text-slate-600 leading-relaxed">Saraswati Ghat density projected to cross <b class="text-amber-600">85% in 22 min</b>. Divert inbound flow from Gate G-3 to Gate G-6 (Padmavathi Ghat, 38% density). Estimated relief: <b class="text-emerald-600">−18% density in 15 min</b>.</p>
+        <div class="mt-2 flex gap-2">
+          <button class="text-[11px] font-semibold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg px-3 py-1.5 transition">✔ Apply diversion</button>
+          <button class="text-[11px] font-semibold bg-white hover:bg-slate-50 text-slate-600 border border-slate-300 rounded-lg px-3 py-1.5 transition">Simulate first</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ROW 4 : ALERTS + FORECAST + RESOURCES ============ -->
+  <section class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+
+    <!-- alerts feed -->
+    <div class="glass-card rounded-2xl p-4 rise-in rise-in-4">
+      <h2 class="font-bold text-navy-900 mb-1">Incident &amp; Alert Feed</h2>
+      <div class="text-[11px] text-slate-500 mb-3">Auto-dispatched to Police · Medical · NDRF control rooms</div>
+      <div id="alertFeed" class="space-y-2 max-h-72 overflow-y-auto pr-1"><!-- injected --></div>
+    </div>
+
+    <!-- crowd forecast -->
+    <div class="glass-card rounded-2xl p-4 rise-in rise-in-5">
+      <h2 class="font-bold text-navy-900 mb-1">AI Crowd Forecast — next 12 h</h2>
+      <div class="text-[11px] text-slate-500 mb-4">ML model: historical Pushkaralu 2015 + mobile-tower + transit data</div>
+      <div class="flex items-end gap-1.5 h-40" id="forecastChart"><!-- injected --></div>
+      <div class="flex justify-between text-[9px] text-slate-400 mt-1 font-mono" id="forecastLabels"></div>
+      <div class="mt-3 text-xs text-slate-600 bg-saffron-50 border border-amber-200 rounded-xl p-3">
+        📈 Peak expected <b class="text-saffron-700">17:00–19:00</b> (evening harathi) — <b class="text-navy-900">6.4 lakh</b> concurrent. Pre-position 2 extra medical teams &amp; open overflow ghat <b class="text-river-700">Kovvur-2</b> by 16:15.
+      </div>
+    </div>
+
+    <!-- resources -->
+    <div class="glass-card rounded-2xl p-4 rise-in rise-in-6">
+      <h2 class="font-bold text-navy-900 mb-1">Field Resources</h2>
+      <div class="text-[11px] text-slate-500 mb-3">Live GPS tracking of deployed units</div>
+      <div class="grid grid-cols-2 gap-2.5 text-center">
+        <div class="rounded-xl bg-slate-50 border border-slate-200 p-3"><div class="text-2xl">👮</div><div class="font-mono font-bold text-navy-900 text-lg kpi-value">4,800</div><div class="text-[10px] text-slate-500">Police personnel</div></div>
+        <div class="rounded-xl bg-slate-50 border border-slate-200 p-3"><div class="text-2xl">🚑</div><div class="font-mono font-bold text-navy-900 text-lg kpi-value">62</div><div class="text-[10px] text-slate-500">Ambulances</div></div>
+        <div class="rounded-xl bg-slate-50 border border-slate-200 p-3"><div class="text-2xl">🛟</div><div class="font-mono font-bold text-navy-900 text-lg kpi-value">240</div><div class="text-[10px] text-slate-500">Expert swimmers</div></div>
+        <div class="rounded-xl bg-slate-50 border border-slate-200 p-3"><div class="text-2xl">🚤</div><div class="font-mono font-bold text-navy-900 text-lg kpi-value">38</div><div class="text-[10px] text-slate-500">Rescue boats</div></div>
+        <div class="rounded-xl bg-slate-50 border border-slate-200 p-3"><div class="text-2xl">⛑️</div><div class="font-mono font-bold text-navy-900 text-lg kpi-value">28</div><div class="text-[10px] text-slate-500">Medical camps</div></div>
+        <div class="rounded-xl bg-slate-50 border border-slate-200 p-3"><div class="text-2xl">📢</div><div class="font-mono font-bold text-navy-900 text-lg kpi-value">410</div><div class="text-[10px] text-slate-500">PA speakers</div></div>
+      </div>
+      <div class="mt-3 rounded-xl bg-emerald-50 border border-emerald-300 p-3 text-xs text-emerald-700 font-medium">
+        ✔ All NDRF &amp; SDRF teams reported in-position at 05:30 IST
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ============ DOCK NAV + NEWS TICKER (one fixed stack, flush, no gap) ============ -->
+<div id="bottomBar" class="fixed bottom-0 inset-x-0 z-50">
+  <nav class="bg-gradient-to-r from-white via-white to-river-50 border-t border-slate-200 shadow-[0_-2px_16px_rgba(15,37,87,.08)]">
+    <ul class="dock flex items-end justify-center gap-1 sm:gap-2 md:gap-3 px-3 sm:px-4 py-3">
+      <li class="dock-item active">
+        <a href="index.html" class="dock-btn" aria-label="Overview">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>
+        </a>
+        <span class="dock-tooltip">Overview</span>
+      </li>
+      <li class="dock-item">
+        <a href="cctv.html" class="dock-btn" aria-label="CCTV Feeds">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </a>
+        <span class="dock-tooltip">CCTV Feeds</span>
+      </li>
+      <li class="dock-item">
+        <a href="ghats.html" class="dock-btn" aria-label="Ghat Telemetry">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </a>
+        <span class="dock-tooltip">Ghat Telemetry</span>
+      </li>
+      <li class="dock-item">
+        <a href="emergency.html" class="dock-btn" aria-label="Response Unit">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </a>
+        <span class="dock-tooltip">Response Unit</span>
+      </li>
+      <li class="dock-item">
+        <a href="transport.html" class="dock-btn" aria-label="Transport & Shuttles">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M3 11h18"/><circle cx="7.5" cy="19" r="1.5"/><circle cx="16.5" cy="19" r="1.5"/></svg>
+        </a>
+        <span class="dock-tooltip">Transport &amp; Shuttles</span>
+      </li>
+      <li class="dock-item">
+        <a href="medical.html" class="dock-btn" aria-label="Medical & Health">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </a>
+        <span class="dock-tooltip">Medical &amp; Health</span>
+      </li>
+      <li class="dock-item">
+        <a href="announcements.html" class="dock-btn" aria-label="Public Audio">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+        </a>
+        <span class="dock-tooltip">Public Audio</span>
+      </li>
+    </ul>
+  </nav>
+
+  <footer class="bg-white/90 backdrop-blur-md border-t-2 border-saffron-500 shadow-[0_-2px_10px_rgba(15,37,87,.08)]">
+    <div class="flex items-center">
+      <div class="shrink-0 bg-saffron-500 text-white text-[11px] font-bold px-4 py-2 tracking-wider">LIVE UPDATES</div>
+      <div class="overflow-hidden flex-1">
+        <div class="ticker whitespace-nowrap py-2 text-xs text-slate-600 flex gap-12 w-max">
+          <span>🕉️ Auspicious bathing window 04:12–11:48 IST · next harathi at Pushkar Ghat 18:30</span>
+          <span>🚌 APSRTC: 1,240 special buses operating · Rajahmundry station footfall +32%</span>
+          <span>💧 Dowleswaram barrage discharge steady at ~31,000 cusecs · all ghats SAFE for bathing</span>
+          <span>🅿️ Parking P-2 at 74% — visitors advised to use P-5 (Kovvur side)</span>
+          <span>📱 Pushkara Netra citizen app: 4.2 lakh downloads · e-darshan slots for 17:00 filling fast</span>
+          <span>🕉️ Auspicious bathing window 04:12–11:48 IST · next harathi at Pushkar Ghat 18:30</span>
+          <span>🚌 APSRTC: 1,240 special buses operating · Rajahmundry station footfall +32%</span>
+          <span>💧 Dowleswaram barrage discharge steady at ~31,000 cusecs · all ghats SAFE for bathing</span>
+          <span>🅿️ Parking P-2 at 74% — visitors advised to use P-5 (Kovvur side)</span>
+          <span>📱 Pushkara Netra citizen app: 4.2 lakh downloads · e-darshan slots for 17:00 filling fast</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>
+<div id="bottomBarSpacer"></div><!-- height synced to #bottomBar via JS -->
+
+<!-- ============ FULL VIDEO WALL (modal) ============ -->
+<div id="videoWallModal" class="hidden fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm">
+  <div class="h-full flex flex-col p-4 md:p-6">
+    <div class="flex items-center justify-between mb-4 shrink-0">
+      <div>
+        <h2 class="text-white font-bold text-lg">Full Video Wall</h2>
+        <div class="text-[12px] text-slate-300">6 real live public feeds standing in for restricted CCTV · POC</div>
+      </div>
+      <button id="closeVideoWallBtn" class="text-[12px] font-semibold bg-white/10 hover:bg-white/20 text-white rounded-lg px-3 py-1.5 transition border border-white/20">✕ Close</button>
+    </div>
+    <div id="videoWallGrid" class="flex-1 min-h-0 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 overflow-y-auto"></div>
+  </div>
+</div>
+
+<script>
+/* ================= simulated live data ================= */
+
+// ---- clock & timestamps ----
+function tickClock(){
+  const now = new Date();
+  const t = now.toTimeString().slice(0,8);
+  document.getElementById('clock').textContent = t;
+  document.getElementById('ts1').textContent = t;
+  ['ts2','ts3','ts4','ts5','ts6'].forEach(id => document.getElementById(id).textContent = t.slice(0,5));
+}
+setInterval(tickClock, 1000); tickClock();
+
+// ---- live weather ----
+const weatherConditions = [
+  { icon:'☀️', text:'Clear' },
+  { icon:'🌤️', text:'Partly cloudy' },
+  { icon:'⛅', text:'Mild haze' },
+];
+let weatherTemp = 34;
+function renderWeather(){
+  const c = weatherConditions[Math.floor(Math.random()*weatherConditions.length)];
+  document.getElementById('weatherTemp').textContent = weatherTemp + '°C';
+  document.getElementById('weatherDesc').textContent = `${c.icon} ${c.text} · Feels like ${weatherTemp + 3}°C`;
+}
+renderWeather();
+setInterval(() => {
+  weatherTemp = Math.max(28, Math.min(40, weatherTemp + Math.round((Math.random()-.5)*2)));
+  renderWeather();
+}, 8000);
+
+// ---- air quality index (simulated live) ----
+let aqiValue = 78;
+function aqiBand(v){
+  if (v <= 50)  return { label:'Good',        color:'text-emerald-600' };
+  if (v <= 100) return { label:'Satisfactory',color:'text-emerald-600' };
+  if (v <= 150) return { label:'Moderate',    color:'text-amber-600'  };
+  return               { label:'Poor',        color:'text-rose-600'   };
+}
+function renderAqi(){
+  const el = document.getElementById('aqiValue');
+  const band = aqiBand(aqiValue);
+  el.textContent = aqiValue;
+  el.className = el.className.replace(/text-(emerald|amber|rose)-\d+/, '').trim() + ' ' + band.color;
+  document.getElementById('aqiDesc').textContent = `${band.label} · PM2.5 ${Math.round(aqiValue * 0.42)} µg/m³`;
+}
+renderAqi();
+setInterval(() => {
+  aqiValue = Math.max(35, Math.min(145, aqiValue + Math.round((Math.random()-.5)*8)));
+  renderAqi();
+}, 9000);
+
+// ---- UV index (simulated live) ----
+let uvValue = 7;
+function uvBand(v){
+  if (v <= 2) return 'Low · minimal protection needed';
+  if (v <= 5) return 'Moderate · seek shade midday';
+  if (v <= 7) return 'High · use sunscreen';
+  if (v <= 10) return 'Very high · limit sun exposure';
+  return 'Extreme · avoid direct sun';
+}
+function renderUv(){
+  document.getElementById('uvValue').textContent = uvValue;
+  document.getElementById('uvDesc').textContent = uvBand(uvValue);
+}
+renderUv();
+setInterval(() => {
+  uvValue = Math.max(1, Math.min(11, uvValue + Math.round((Math.random()-.5)*2)));
+  renderUv();
+}, 10000);
+
+// ---- next auspicious snan countdown (live ticking) ----
+function updateMuhurthamCountdown(){
+  const now = new Date();
+  const target = new Date(now);
+  target.setHours(18, 30, 0, 0);
+  if (target <= now) target.setDate(target.getDate() + 1);
+  const diff = target - now;
+  const h = Math.floor(diff / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+  document.getElementById('muhurthamCountdown').textContent =
+    [h, m, s].map(n => String(n).padStart(2, '0')).join(':');
+}
+setInterval(updateMuhurthamCountdown, 1000);
+updateMuhurthamCountdown();
+
+// ---- animated counters ----
+function animateTo(el, target, dur=1600){
+  const start = parseInt(el.dataset.v || '0'), t0 = performance.now();
+  function step(t){
+    const p = Math.min((t - t0)/dur, 1), e = 1 - Math.pow(1-p, 3);
+    el.textContent = Math.round(start + (target-start)*e).toLocaleString('en-IN');
+    if(p < 1) requestAnimationFrame(step); else el.dataset.v = target;
+  }
+  requestAnimationFrame(step);
+}
+
+const kpiLive = document.getElementById('kpiLive');
+const kpiToday = document.getElementById('kpiToday');
+const kpiFlow = document.getElementById('kpiFlow');
+const kpiLevel = document.getElementById('kpiLevel');
+let live = 348200, today = 2140000, flow = 31000;
+
+animateTo(kpiLive, live); animateTo(kpiToday, today); animateTo(kpiFlow, flow);
+kpiLevel.textContent = '15.6';
+
+setInterval(() => {
+  live = Math.max(200000, live + Math.round((Math.random()-.45)*6000));
+  today += Math.round(Math.random()*900);
+  flow = 31000 + Math.round((Math.random()-.5)*1400);
+  animateTo(kpiLive, live, 900); animateTo(kpiToday, today, 900); animateTo(kpiFlow, flow, 900);
+  kpiLevel.textContent = (15.6 + (Math.random()-.5)*.1).toFixed(1);
+  document.getElementById('droneCount').textContent = (4000 + Math.round(Math.random()*600)).toLocaleString('en-IN');
+}, 3000);
+
+// ---- ghat density ----
+const ghats = [
+  { name:'Pushkar Ghat · Rajamahendravaram', cap:80000, d:64 },
+  { name:'Kotilingala Ghat',                 cap:45000, d:52 },
+  { name:'Saraswati Ghat',                   cap:38000, d:88 },
+  { name:'Gowthami Ghat',                    cap:30000, d:71 },
+  { name:'Padmavathi Ghat',                  cap:26000, d:38 },
+  { name:'Kovvur Ghat 1 (West Godavari)',    cap:42000, d:57 },
+  { name:'Kovvur Ghat 2 · overflow',         cap:35000, d:12 },
+];
+const ghatList = document.getElementById('ghatList');
+function densityColor(d){ return d>85 ? ['bg-rose-500','text-rose-600','CRITICAL','🔴'] : d>=60 ? ['bg-amber-500','text-amber-600','WATCH','🟡'] : ['bg-emerald-500','text-emerald-600','SAFE','🟢']; }
+function renderGhats(){
+  ghatList.innerHTML = ghats.map((g,i) => {
+    const [bar, txt, label, ico] = densityColor(g.d);
+    const count = Math.round(g.cap * g.d/100);
+    return `
+    <div class="flex items-center gap-3">
+      <div class="w-52 shrink-0 text-xs text-slate-600 truncate" title="${g.name}">${g.name}</div>
+      <div class="flex-1 h-5 bg-slate-100 rounded-full overflow-hidden relative">
+        <div class="density-bar h-full ${bar} rounded-full" style="width:${g.d}%"></div>
+        <div class="absolute inset-0 flex items-center px-2 text-[10px] font-mono font-semibold text-navy-900 mix-blend-luminosity" style="mix-blend-mode:normal; color:${g.d>30 ? '#fff' : '#334155'}">${count.toLocaleString('en-IN')} pilgrims</div>
+      </div>
+      <div class="w-12 text-right font-mono text-sm font-bold ${txt}">${g.d}%</div>
+      <div class="w-24 text-[10px] font-semibold ${txt}">${ico} ${label}</div>
+    </div>`;
+  }).join('');
+}
+renderGhats();
+setInterval(() => {
+  ghats.forEach(g => g.d = Math.max(8, Math.min(96, g.d + Math.round((Math.random()-.5)*7))));
+  renderGhats();
+}, 4000);
+
+// ---- flow gauge ----
+setInterval(() => {
+  const pct = 55 + Math.round(Math.random()*14);
+  document.getElementById('flowGauge').style.strokeDashoffset = 264 - (264*pct/100);
+  document.getElementById('intensityPct').textContent = pct + '%';
+  document.getElementById('rvVel').textContent = (1.6 + Math.random()*.5).toFixed(1) + ' m/s';
+}, 3500);
+
+// ---- gates ----
+const gates = [
+  { id:'G-1', ghat:'Pushkar Ghat',   in:1240, out: 980, status:'OPEN' },
+  { id:'G-2', ghat:'Pushkar Ghat',   in: 890, out:1105, status:'OPEN' },
+  { id:'G-3', ghat:'Saraswati Ghat', in:1710, out: 640, status:'RESTRICTED' },
+  { id:'G-4', ghat:'Kotilingala',    in: 760, out: 820, status:'OPEN' },
+  { id:'G-5', ghat:'Gowthami Ghat',  in: 540, out: 495, status:'OPEN' },
+  { id:'G-6', ghat:'Padmavathi',     in: 310, out: 260, status:'OPEN' },
+  { id:'G-7', ghat:'Kovvur 1',       in: 620, out: 700, status:'OPEN' },
+  { id:'G-8', ghat:'Kovvur 2',       in:   0, out:   0, status:'CLOSED' },
+];
+const statusChip = s => s==='OPEN' ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                    : s==='RESTRICTED' ? 'bg-amber-50 text-amber-700 border-amber-300'
+                    : 'bg-rose-50 text-rose-700 border-rose-300';
+function renderGates(){
+  document.getElementById('gateList').innerHTML = gates.map(g => `
+    <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
+      <div class="w-9 h-9 rounded-lg bg-navy-900 flex items-center justify-center font-mono font-bold text-white text-xs shrink-0">${g.id}</div>
+      <div class="flex-1 min-w-0"><div class="text-xs text-slate-700 font-medium truncate">${g.ghat}</div>
+        <div class="text-[10px] font-mono"><span class="text-emerald-600 flow-arrow inline-block">▶</span> <span class="text-emerald-700">IN ${g.in.toLocaleString('en-IN')}/hr</span>
+        <span class="text-slate-300 mx-1">·</span><span class="text-sky-600 flow-arrow-out inline-block">◀</span> <span class="text-sky-700">OUT ${g.out.toLocaleString('en-IN')}/hr</span></div></div>
+      <span class="text-[9px] font-bold border rounded-full px-2 py-0.5 ${statusChip(g.status)}">${g.status}</span>
+    </div>`).join('');
+}
+renderGates();
+setInterval(() => {
+  gates.forEach(g => { if(g.status!=='CLOSED'){ g.in = Math.max(0, g.in + Math.round((Math.random()-.5)*90)); g.out = Math.max(0, g.out + Math.round((Math.random()-.5)*90)); }});
+  renderGates();
+}, 5000);
+
+// ---- alerts ----
+const alertPool = [
+  { sev:'high',  ico:'🚨', txt:'Crowd surge — Saraswati Ghat sector S-3, density 88%. Gate G-3 auto-restricted.', tag:'CROWD' },
+  { sev:'med',   ico:'🩺', txt:'Medical assist — elderly pilgrim, Pushkar Ghat step-9. Ambulance A-14 dispatched, ETA 3 min.', tag:'MEDICAL' },
+  { sev:'low',   ico:'👦', txt:'Lost child reported at Kotilingala Ghat — face-match running across 296 cameras.', tag:'FIND' },
+  { sev:'med',   ico:'🛥️', txt:'Unauthorised boat detected 400 m upstream of bathing zone — river police alerted.', tag:'RIVER' },
+  { sev:'low',   ico:'✅', txt:'Lost child REUNITED with family in 6 min via AI face-match (camera CAM-118).', tag:'RESOLVED' },
+  { sev:'med',   ico:'🅿️', txt:'Parking P-2 at 74% capacity — VMS boards updated to divert to P-5.', tag:'TRAFFIC' },
+  { sev:'high',  ico:'🌊', txt:'Flow intensity rose 8% in 20 min — depth-marker buoys auto-flashing at all ghats.', tag:'RIVER' },
+  { sev:'low',   ico:'📢', txt:'Announcement pushed in Telugu/Hindi/English: next auspicious slot 16:40–18:10.', tag:'INFO' },
+];
+const sevStyle = { high:'border-rose-300 bg-rose-50', med:'border-amber-300 bg-amber-50', low:'border-slate-200 bg-slate-50' };
+const feed = document.getElementById('alertFeed');
+let alertIdx = 0;
+function pushAlert(){
+  const a = alertPool[alertIdx % alertPool.length]; alertIdx++;
+  const t = new Date().toTimeString().slice(0,5);
+  const el = document.createElement('div');
+  el.className = `rise-in border rounded-xl px-3 py-2 flex gap-2.5 ${sevStyle[a.sev]}`;
+  el.innerHTML = `<div class="text-lg leading-none pt-0.5">${a.ico}</div>
+    <div class="flex-1"><div class="text-xs text-slate-700 leading-snug">${a.txt}</div>
+    <div class="text-[9px] text-slate-400 font-mono mt-1">${t} IST · ${a.tag} · auto-routed</div></div>`;
+  feed.prepend(el);
+  while(feed.children.length > 8) feed.lastChild.remove();
+}
+pushAlert(); pushAlert(); pushAlert();
+setInterval(pushAlert, 7000);
+
+// ---- forecast chart ----
+const hours = ['13','14','15','16','17','18','19','20','21','22','23','00'];
+const vals  = [42, 47, 55, 68, 88, 96, 90, 72, 58, 44, 30, 22]; // % of peak
+const chart = document.getElementById('forecastChart');
+chart.innerHTML = vals.map((v,i) => {
+  const peak = v > 80;
+  return `<div class="flex-1 h-full flex flex-col justify-end group relative">
+    <div class="absolute -top-6 left-1/2 -translate-x-1/2 hidden group-hover:block text-[9px] font-mono bg-navy-900 text-white rounded px-1.5 py-0.5 whitespace-nowrap z-10">${(v*6700).toLocaleString('en-IN')}</div>
+    <div class="rounded-t-md ${peak ? 'bg-gradient-to-t from-saffron-600 to-saffron-400' : 'bg-gradient-to-t from-river-600 to-river-400'} transition-all duration-1000" style="height:${v}%"></div>
+  </div>`;
+}).join('');
+document.getElementById('forecastLabels').innerHTML = hours.map(h => `<span>${h}h</span>`).join('');
+
+// ---- sparkles on every glass card ----
+document.querySelectorAll('.glass-card').forEach((card, i) => {
+  for (let k = 0; k < 2; k++) {
+    const sp = document.createElement('span');
+    sp.className = 'sparkle';
+    sp.textContent = '✦';
+    sp.style.top = (6 + Math.random() * 72) + '%';
+    sp.style.left = (5 + Math.random() * 88) + '%';
+    sp.style.fontSize = (7 + Math.random() * 6) + 'px';
+    sp.style.animationDelay = (Math.random() * 4).toFixed(2) + 's';
+    sp.style.animationDuration = (2.8 + Math.random() * 2).toFixed(2) + 's';
+    card.appendChild(sp);
+  }
+});
+
+// ---- dock nav now navigates to real pages; active state is set in markup ----
+
+// ---- keep the spacer in sync with the fixed bottom bar's real height ----
+function syncBottomBarSpacer(){
+  const bar = document.getElementById('bottomBar');
+  document.getElementById('bottomBarSpacer').style.height = bar.offsetHeight + 'px';
+}
+syncBottomBarSpacer();
+window.addEventListener('resize', syncBottomBarSpacer);
+window.addEventListener('load', syncBottomBarSpacer);
+
+// ---- full video wall (modal) ----
+const videoWallFeeds = [
+  { label: 'LIVE · Kashi Vishwanath Temple',   sub: 'Varanasi · Garbhagriha cam',      border: 'border-emerald-400', src: 'https://www.youtube.com/embed/live_stream?channel=UCdMj2twWfMHXrWgX5oVdoyA' },
+  { label: 'SVBC TTD · Tirupati',              sub: 'CAM-114 · Kotilingala Ghat',       border: 'border-emerald-400', src: 'https://www.youtube.com/embed/live_stream?channel=UCTboTRX74UydvU_cBdm_cCQ' },
+  { label: 'Jay Jagannath TV · Puri',          sub: 'CAM-052 · Saraswati Ghat ⚠ surge', border: 'border-amber-400',   src: 'https://www.youtube.com/embed/live_stream?channel=UCET-LB-LgAuDS-Cy8nfH4-w' },
+  { label: 'Palani Murugan Temple (Thamirabarani TV)', sub: 'DRONE-07 · Pushkar Ghat Aerial', border: 'border-slate-300', src: 'https://www.youtube.com/embed/PpnpnT4P_60' },
+  { label: 'EarthCam · Abbey Road',            sub: 'CAM-233 · Parking P-2',            border: 'border-slate-300',   src: 'https://www.youtube.com/embed/M3EYAY2MftI' },
+  { label: 'Shibuya Scramble Crossing',        sub: 'CAM-087 · Queue Corridor Q-1',     border: 'border-slate-300',   src: 'https://www.youtube.com/embed/8H3nRCFVR6Y' },
+];
+
+const videoWallModal = document.getElementById('videoWallModal');
+const videoWallGrid = document.getElementById('videoWallGrid');
+
+function openVideoWall(){
+  videoWallGrid.innerHTML = videoWallFeeds.map(f => `
+    <div class="relative rounded-xl overflow-hidden border-2 ${f.border} aspect-video bg-black">
+      <iframe class="absolute inset-0 w-full h-full" src="${f.src}?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&playsinline=1" title="${f.label}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen loading="lazy"></iframe>
+      <div class="absolute top-1.5 left-2 flex items-center gap-1.5 text-[10px] font-mono text-white pointer-events-none bg-black/40 px-1.5 py-0.5 rounded"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 rec-blink"></span>${f.label}</div>
+      <div class="absolute bottom-1.5 left-2 text-[9px] font-mono text-slate-200 pointer-events-none bg-black/40 px-1.5 py-0.5 rounded">${f.sub}</div>
+    </div>`).join('');
+  videoWallModal.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeVideoWall(){
+  videoWallModal.classList.add('hidden');
+  videoWallGrid.innerHTML = ''; // clear iframes so playback/loading stops
+  document.body.style.overflow = '';
+}
+
+document.getElementById('openVideoWallBtn').addEventListener('click', openVideoWall);
+document.getElementById('closeVideoWallBtn').addEventListener('click', closeVideoWall);
+videoWallModal.addEventListener('click', (e) => { if (e.target === videoWallModal) closeVideoWall(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !videoWallModal.classList.contains('hidden')) closeVideoWall(); });
+
+// ---- live feed resilience ----
+// External live channels (esp. the temple ones) go offline between
+// broadcasts, showing YouTube's "video unavailable" box. This uses the
+// YouTube IFrame API to detect that (either an explicit onError, or the
+// player simply never becoming ready) and swaps the tile over to a
+// reliably always-live backup feed instead of leaving a broken tile.
+const FEED_FALLBACK_ID = 'uwXgcTc8oY8'; // NASA ISS — verified rock-solid 24/7 stream
+const FEED_IDS = ['feed-1','feed-2','feed-3','feed-4','feed-5','feed-6'];
+
+function markFeedFallback(id){
+  const label = document.getElementById(id + '-label');
+  if (label && !label.dataset.fallback) {
+    label.dataset.fallback = '1';
+    label.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-400 rec-blink"></span>FEED OFFLINE · showing backup feed';
+  }
+}
+
+function failoverFeed(id, player){
+  markFeedFallback(id);
+  if (player && typeof player.loadVideoById === 'function') {
+    try { player.loadVideoById(FEED_FALLBACK_ID); return; } catch (err) {}
+  }
+  const el = document.getElementById(id);
+  if (el) el.src = `https://www.youtube.com/embed/${FEED_FALLBACK_ID}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&playsinline=1&enablejsapi=1`;
+}
+
+window.onYouTubeIframeAPIReady = function(){
+  FEED_IDS.forEach(id => {
+    let ready = false;
+    const readyTimeout = setTimeout(() => { if (!ready) failoverFeed(id, null); }, 8000);
+    try {
+      new YT.Player(id, {
+        events: {
+          onReady: () => { ready = true; clearTimeout(readyTimeout); },
+          onError: (e) => { ready = true; clearTimeout(readyTimeout); failoverFeed(id, e.target); },
+        },
+      });
+    } catch (err) {
+      clearTimeout(readyTimeout);
+      failoverFeed(id, null);
+    }
+  });
+};
+
+(function(){
+  const tag = document.createElement('script');
+  tag.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+})();
+</script>
+</body>
+</html>

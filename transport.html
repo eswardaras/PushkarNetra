@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Godavari Maha Pushkaram · Transport &amp; Shuttles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Marcellus+SC&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sky-top:#9cd1e4; --sky-mid:#ffe0c0; --sky-glow:#ffcf8f; --sun:#ffb24d; --saffron:#f07316;
+  --saffron-soft:#ff9a3c; --marigold:#f9a825; --teal:#0e8f86; --teal-deep:#0a6f68; --river:#48cabf;
+  --sacred:#8b3a62; --ink:#173a3a; --ink-soft:#3e5c5a; --ink-faint:#6b8483;
+  --glass: rgba(255, 255, 255, 0.22); --glass-strong: rgba(255, 255, 255, 0.35); --glass-line: rgba(255, 255, 255, 0.55);
+  --glass-blur: blur(4px) saturate(140%); --stroke:rgba(23,58,58,.08); --stroke-2:rgba(23,58,58,.12);
+  --good:#1f9d55; --warn:#e8890c; --crit:#e0492f; --shadow:0 30px 60px -15px rgba(14,50,50,.25);
+  --shadow-sm:0 12px 28px -10px rgba(14,50,50,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',system-ui,sans-serif;color:var(--ink);background:#d3e7ed;min-height:100vh;overflow-x:clip;-webkit-font-smoothing:antialiased;}
+
+/* Typography Rules */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Marcellus', serif !important;
+}
+.mono, .val, .lvl, .time, .er-num, .fv, #temp, #clock, .cap, .rs .v, .analytics-overlay, .cam-top, .cam-ts, .cam-item-id, .layout-btn, .search-box input, .unit-value, .unit-badge, .log-time {
+  font-family: 'Marcellus', serif !important;
+}
+
+/* Background Scene Layers */
+.scene{position:fixed;inset:0;z-index:0;overflow:hidden}
+.sky{position:absolute;inset:0;background:linear-gradient(180deg, var(--sky-top) 0%, #d9edf1 26%, var(--sky-mid) 58%, var(--sky-glow) 74%, #ffe7c6 100%);}
+.sun{position:absolute;left:50%;top:46%;width:230px;height:230px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle at 50% 50%, #fff6e0 0%,#ffe6ad 34%,var(--sun) 60%,rgba(255,178,77,0) 72%);animation:sunrise 14s ease-in-out infinite alternate, sunpulse 6s ease-in-out infinite;}
+@keyframes sunrise{from{top:52%}to{top:42%}}@keyframes sunpulse{0%,100%{opacity:.9}50%{opacity:1}}
+.cloud{position:absolute;background:linear-gradient(180deg, rgba(255,255,255,0.85) 0%, rgba(240,248,250,0.4) 100%);border-radius:100px;filter:blur(4px);animation:floatClouds linear infinite;pointer-events:none;opacity:0.65;}
+.cloud::before, .cloud::after{content:"";position:absolute;background:inherit;border-radius:50%;}
+.cloud.c1{width:180px;height:55px;top:12%;left:-200px;animation-duration:45s;}.cloud.c1::before{width:75px;height:75px;top:-35px;left:30px;}.cloud.c1::after{width:95px;height:95px;top:-45px;left:75px;}
+.cloud.c2{width:260px;height:70px;top:22%;left:-300px;animation-duration:65s;animation-delay:-15s;opacity:0.5;transform:scale(0.75);}.cloud.c2::before{width:110px;height:110px;top:-50px;left:40px;}.cloud.c2::after{width:130px;height:130px;top:-65px;left:110px;}
+.cloud.c3{width:140px;height:45px;top:8%;left:-150px;animation-duration:35s;animation-delay:-7s;opacity:0.7;transform:scale(1.1);}.cloud.c3::before{width:60px;height:60px;top:-25px;left:20px;}.cloud.c3::after{width:75px;height:75px;top:-35px;left:55px;}
+@keyframes floatClouds{0%{transform:translateX(-10vw);}100%{transform:translateX(115vw);}}
+.hills{position:absolute;bottom:38%;left:0;right:0;height:120px;background:radial-gradient(120% 100% at 20% 100%,#bcd9c4 0%,rgba(188,217,196,0) 60%), radial-gradient(120% 100% at 78% 100%,#a9cdba 0%,rgba(169,205,186,0) 60%);opacity:.55}
+.skyline{position:absolute;bottom:37%;left:0;width:100%;height:150px;opacity:.9}
+.river{position:absolute;bottom:0;left:0;right:0;height:40%;background:linear-gradient(180deg,#eafaf6 0%,#bfeae2 30%,var(--river) 100%);overflow:hidden}
+.river-shine{position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,214,150,.55),rgba(255,214,150,0) 40%), repeating-linear-gradient(180deg,rgba(255,255,255,.0) 0 8px,rgba(255,255,255,.10) 8px 10px);mix-blend-mode:screen}
+.sun-trail{position:absolute;left:50%;top:0;width:120px;height:100%;transform:translateX(-50%);background:linear-gradient(180deg,rgba(255,224,170,.9),rgba(255,224,170,0));filter:blur(6px);opacity:.7;animation:shimmer 5s ease-in-out infinite}
+.ripple{position:absolute;left:0;right:0;height:16px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M0,10 Q25,2 50,10 T100,10' fill='none' stroke='rgba(255,255,255,0.4)' stroke-width='1.5'/%3E%3C/svg%3E");background-size:140px 100%;background-repeat:repeat-x;animation:rippleMove linear infinite}
+@keyframes rippleMove{from{background-position-x:0;}to{background-position-x:140px;}}
+.scene-wash{position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.2),rgba(255,255,255,.45))}
+
+/* Layout Header Shell */
+.app{position:relative;z-index:2;width:100%;max-width:100%;margin:0;padding:20px 24px 40px}
+.cmd-bar{display:flex;align-items:center;gap:18px;flex-wrap:wrap;background:var(--glass-strong);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid var(--glass-line);border-radius:20px;padding:14px 24px;box-shadow:var(--shadow-sm)}
+.crest{display:flex;align-items:center;gap:13px}
+.ap-logo{width:42px;height:42px;object-fit:contain;}
+.crest .kalash{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:conic-gradient(from 210deg,var(--saffron),var(--marigold),var(--saffron));color:#fff;font-size:22px;box-shadow:0 6px 16px -6px rgba(240,115,22,.7)}
+.crest h1{font-size:18px;letter-spacing:.5px;line-height:1.05}
+.crest span{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
+.cmd-spacer{flex:1}
+.cmd-chip{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--ink-soft);background:rgba(255,255,255,.4);border:1px solid var(--glass-line);border-radius:999px;padding:7px 14px;backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);}
+.live-dot{width:9px;height:9px;border-radius:50%;background:var(--good);position:relative}
+.live-dot::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:1px solid var(--good);animation:ping 1.6s ease-out infinite}
+@keyframes ping{from{transform:scale(.6);opacity:.9}to{transform:scale(1.8);opacity:0}}
+
+.nav-tabs{display:flex;gap:8px;margin-top:16px;background:rgba(255,255,255,0.25);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);padding:6px;border-radius:14px;border:1px solid var(--glass-line);width:100%;overflow-x:auto;white-space:nowrap;}
+.tab-btn{background:none;border:none;padding:10px 18px;font-size:13px;font-weight:700;color:var(--ink-soft);cursor:pointer;border-radius:10px;transition:all 0.25s ease;display:inline-flex;align-items:center;gap:6px;text-decoration:none;}
+.tab-btn:hover{background:rgba(255,255,255,0.4);color:var(--ink);}
+.tab-btn.active{background:var(--teal);color:#fff;box-shadow:0 4px 12px rgba(14,143,134,0.3);}
+
+/* Split View Dashboard Workspace */
+.surveillance-workspace {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* Sidebar Navigation Panel */
+.surveillance-sidebar {
+  background: var(--glass);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-line);
+  border-radius: 22px;
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  max-height: 740px;
+  overflow-y: auto;
+}
+.surveillance-sidebar::-webkit-scrollbar { width: 5px; }
+.surveillance-sidebar::-webkit-scrollbar-thumb { background: rgba(23,58,58,0.15); border-radius: 10px; }
+
+.category-group { margin-bottom: 20px; }
+.category-title {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--saffron);
+  font-weight: 700;
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(23, 58, 58, 0.08);
+  margin-bottom: 8px;
+}
+.cam-list-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  color: var(--ink-soft);
+  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 600;
+}
+.cam-list-item:hover {
+  background: rgba(255, 255, 255, 0.3);
+  color: var(--ink);
+}
+.cam-list-item.active {
+  background: rgba(14, 143, 134, 0.15);
+  color: var(--teal-deep);
+  border-left: 3px solid var(--teal);
+}
+.cam-list-item .status-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-left: auto;
+}
+.status-indicator.high { background: var(--crit); }
+.status-indicator.mid { background: var(--warn); }
+.status-indicator.ok { background: var(--good); }
+
+/* Main Video Operations Deck */
+.surveillance-deck { display: flex; flex-direction: column; gap: 16px; }
+
+/* Control Action Header */
+.deck-action-header {
+  background: var(--glass-strong);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-line);
+  border-radius: 18px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
+}
+.search-box {
+  position: relative;
+  flex: 1;
+  max-width: 360px;
+}
+.search-box input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid var(--glass-line);
+  padding: 8px 14px 8px 36px;
+  border-radius: 12px;
+  outline: none;
+  font-size: 13.5px;
+  color: var(--ink);
+}
+.search-box::before {
+  content: "🚌";
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  opacity: 0.7;
+}
+.deck-controls { display: flex; align-items: center; gap: 14px; }
+.timestamp-chip {
+  background: rgba(255, 255, 255, 0.5);
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border: 1px solid var(--glass-line);
+}
+.layout-toggle-group {
+  display: flex;
+  background: rgba(23, 58, 58, 0.06);
+  padding: 4px;
+  border-radius: 10px;
+  gap: 2px;
+}
+.layout-btn {
+  background: none;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--ink-soft);
+  transition: all 0.2s;
+}
+.layout-btn.active, .layout-btn:hover {
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+/* Flexible Dashboard Matrix Grid */
+.video-matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  transition: all 0.3s ease;
+}
+.video-matrix-grid.single-view { grid-template-columns: 1fr; }
+.video-matrix-grid.triple-view { grid-template-columns: repeat(3, 1fr); }
+
+/* Operational Transport Hub Cards */
+.cam-feed-card {
+  background: var(--glass);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-line);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s;
+}
+.cam-feed-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+}
+.cam-video-simulator {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0.06;
+  pointer-events: none;
+}
+.cam-scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  background: repeating-linear-gradient(180deg, rgba(255,255,255,0) 0 3px, rgba(23,58,58,.03) 3px 4px);
+}
+
+/* Response Cards Header Components */
+.unit-card-header { display: flex; justify-content: space-between; align-items: flex-start; z-index: 3; }
+.unit-title-block h3 { font-size: 19px; color: var(--ink); margin-bottom: 2px; }
+.unit-title-block p { font-size: 11px; color: var(--ink-soft); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+.unit-badge { padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 700; text-transform: uppercase; color: #fff; }
+.unit-badge.high { background: var(--crit); }
+.unit-badge.mid { background: var(--warn); }
+.unit-badge.ok { background: var(--good); }
+
+/* Response Metrics Grid */
+.metrics-row-grid { 
+  display: grid; 
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 8px; 
+  background: rgba(255,255,255,0.35); 
+  border-radius: 12px; 
+  padding: 10px; 
+  border: 1px solid rgba(255,255,255,0.4); 
+  z-index: 3;
+}
+.metric-datapoint { display: flex; flex-direction: column; gap: 1px; }
+.metric-label { font-size: 10px; font-weight: 700; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.3px; }
+.unit-value { font-size: 16px; font-weight: 600; color: var(--ink); }
+
+/* Information Log strip */
+.incident-log-strip {
+  background: rgba(23, 58, 58, 0.04);
+  border-left: 3px solid var(--teal);
+  padding: 8px 12px;
+  border-radius: 0 8px 8px 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ink);
+  z-index: 3;
+}
+.incident-log-strip strong { color: var(--teal-deep); }
+
+/* Deployment Capacity Bar */
+.deployment-load-bar { display: flex; flex-direction: column; gap: 4px; z-index: 3; }
+.bar-labels { display: flex; justify-content: space-between; font-size: 10.5px; font-weight: 600; color: var(--ink-soft); }
+.progress-track { width: 100%; height: 7px; background: rgba(23, 58, 58, 0.08); border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 99px; transition: width 0.5s ease; }
+.progress-fill.high { background: var(--crit); }
+.progress-fill.mid { background: var(--warn); }
+.progress-fill.ok { background: var(--good); }
+
+/* Card Footers */
+.unit-footer-actions { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(23, 58, 58, 0.06); padding-top: 8px; font-size: 11.5px; color: var(--ink-soft); font-weight: 500; z-index: 3; }
+.status-indicator-dot { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+.dot { width: 7px; height: 7px; border-radius: 50%; }
+
+/* Detail Overlay Modals */
+.modal-overlay { position: fixed; inset: 0; background: rgba(14,40,40,0.45); backdrop-filter: blur(12px); z-index: 100; display: grid; place-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+.modal-overlay.active { opacity: 1; pointer-events: all; }
+.modal-box { background: rgba(255, 255, 255, 0.4); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); width: 90%; max-width: 740px; border-radius: 24px; overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--glass-line); transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.modal-overlay.active .modal-box { transform: scale(1); }
+.modal-video-feed { width: 100%; aspect-ratio: 16/9; position: relative; background: #000; display: flex; flex-direction: column; justify-content: space-between; padding: 15px; }
+.modal-video-grid-lines { position: absolute; inset: 0; border: 1px dashed rgba(255,255,255,0.15); pointer-events: none; background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 20px 20px; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid var(--stroke); }
+.modal-close { background: rgba(23,58,58,0.08); border: none; width: 30px; height: 30px; border-radius: 50%; font-weight: bold; cursor: pointer; display: grid; place-items: center; }
+.modal-close:hover { background: var(--crit); color: #fff; }
+.analytics-overlay { position: relative; z-index: 2; background: rgba(0,0,0,0.6); padding: 12px 16px; border-radius: 10px; color: #fff; font-size: 12px; width: 100%; max-width: 500px; border: 1px solid rgba(255,255,255,0.2); line-height: 1.6; }
+
+footer { text-align: center; color: var(--ink-faint); font-size: 12px; font-weight: 500; margin-top: 30px; }
+
+/* Responsiveness */
+@media(max-width: 960px) {
+  .surveillance-workspace { grid-template-columns: 1fr; }
+  .video-matrix-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media(max-width: 640px) {
+  .video-matrix-grid { grid-template-columns: 1fr !important; }
+  .deck-action-header { flex-direction: column; align-items: stretch; }
+}
+/* ── Integrated Icon Navigation Styling ── */
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px; /* Smooth spacing between SVG shape and text string */
+  text-decoration: none;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  transition: color 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease;
+}
+
+.nav-icon {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  opacity: 0.65; /* Slightly muted in unselected state */
+  transform: translateY(-0.5px); /* Micro vertical alignment fix */
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Hover and Focus interaction */
+.tab-btn:hover .nav-icon {
+  opacity: 1;
+  color: var(--teal);
+  transform: scale(1.1) translateY(-0.5px);
+}
+
+/* Active Highlight style context matching your dashboard accent colors */
+.tab-btn.active .nav-icon {
+  opacity: 1;
+  color: var(--saffron);
+  filter: drop-shadow(0 0 4px var(--saffron-soft));
+}
+
+/* ============================================================
+   Shared Pushkara Netra chrome (matches index.html design)
+   tricolor strip · govt header · hero card · dock nav · ticker
+   All classes prefixed pn- to avoid collisions with page styles.
+   ============================================================ */
+@keyframes pnPulseDot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(.8);}}
+@keyframes pnGlowPulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.30);}50%{box-shadow:0 0 20px 5px rgba(245,158,11,.22);}}
+@keyframes pnFloaty{0%,100%{transform:translateY(0) rotate(-1.5deg);}50%{transform:translateY(-5px) rotate(1.5deg);}}
+@keyframes pnTitleGrad{0%{background-position:0% 50%;}100%{background-position:200% 50%;}}
+@keyframes pnTicker{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+@keyframes pnRiseIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.pn-pulse-dot{animation:pnPulseDot 1.6s ease-in-out infinite;}
+.pn-tricolor{position:relative;z-index:50;height:6px;width:100%;background:linear-gradient(90deg,#f59e0b 0%,#f59e0b 33%,#f8fafc 33%,#f8fafc 66%,#16a34a 66%,#16a34a 100%);}
+
+/* ---- sticky govt header ---- */
+.pn-header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.95);border-bottom:1px solid #e2e8f0;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 1px 3px rgba(15,37,87,.08),0 4px 16px rgba(15,37,87,.06);}
+.pn-header *{box-sizing:border-box;}
+.pn-header-inner{max-width:1700px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:16px;}
+.pn-brand{display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.pn-emblem-ring{width:56px;height:56px;border-radius:9999px;background:linear-gradient(135deg,#fbbf24,#d97706);padding:2px;animation:pnGlowPulse 3s ease-in-out infinite;flex-shrink:0;}
+.pn-emblem-ring>div{width:100%;height:100%;border-radius:9999px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.pn-emblem-ring img{width:48px;height:48px;object-fit:contain;}
+.pn-fest-logo{width:56px;height:56px;object-fit:contain;animation:pnFloaty 4.5s ease-in-out infinite;filter:drop-shadow(0 6px 8px rgba(0,0,0,.25));flex-shrink:0;}
+.pn-brand-text{line-height:1.25;}
+.pn-brand-gov{font-size:10px;letter-spacing:.25em;color:#b45309;font-weight:600;}
+.pn-brand-title{font-family:'Marcellus SC',serif !important;font-size:20px;font-weight:700;background:linear-gradient(90deg,#0f2557 0%,#0891b2 30%,#d97706 55%,#0f2557 80%,#0f2557 100%);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:pnTitleGrad 7s linear infinite;}
+.pn-brand-sub{font-size:11px;color:#64748b;}
+.pn-status{flex:1;display:flex;align-items:center;justify-content:center;gap:24px;}
+.pn-pill{display:none;align-items:center;gap:8px;border-radius:9999px;padding:6px 16px;font-size:12px;}
+.pn-pill-live{background:#ecfdf5;border:1px solid #a7f3d0;}
+.pn-pill-alert{background:#fffbeb;border:1px solid #fde68a;}
+@media(min-width:1024px){.pn-pill-live{display:flex;}}
+@media(min-width:1280px){.pn-pill-alert{display:flex;}}
+.pn-pill-live .pn-dot{width:10px;height:10px;border-radius:9999px;background:#10b981;}
+.pn-pill-live b{font-weight:600;color:#047857;}
+.pn-pill .pn-clock{font-family:Consolas,Menlo,monospace;color:#475569;}
+.pn-leaders{display:flex;align-items:center;gap:16px;flex-shrink:0;}
+.pn-leader{display:flex;align-items:center;gap:10px;}
+.pn-leader-ring{width:48px;height:48px;border-radius:9999px;padding:2px;flex-shrink:0;}
+.pn-leader-ring.cm{background:linear-gradient(135deg,#fbbf24,#d97706);}
+.pn-leader-ring.dcm{background:linear-gradient(135deg,#22d3ee,#0891b2);}
+.pn-leader-ring img{width:100%;height:100%;border-radius:9999px;object-fit:cover;object-position:top;background:#fff;display:block;}
+.pn-leader-name{font-size:11px;font-weight:700;color:#0f2557;line-height:1.3;}
+.pn-leader-role{font-size:10px;}
+.pn-leader-role.cm{color:#b45309;}
+.pn-leader-role.dcm{color:#0e7490;}
+@media(max-width:900px){.pn-leader-text{display:none;}}
+
+/* ---- glass hero card ---- */
+.pn-hero{position:relative;border-radius:1.5rem;background:rgba(255,255,255,.82);border:1.5px solid rgba(15,37,87,.14);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 4px 16px rgba(15,37,87,.06);padding:24px 32px;margin-bottom:4px;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:24px;animation:pnRiseIn .7s ease-out both;}
+.pn-hero-left{flex:1;min-width:260px;}
+.pn-hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:9999px;background:rgba(255,255,255,.7);border:1px solid #e2e8f0;font-size:11px;font-weight:700;letter-spacing:.05em;color:#d97706;text-transform:uppercase;margin-bottom:14px;}
+.pn-hero-title{font-family:'Marcellus SC',serif !important;font-size:clamp(26px,3vw,36px);letter-spacing:-.02em;color:#0f2557;font-weight:400;line-height:1.15;}
+.pn-hero-title span{color:#d97706;}
+.pn-hero-sub{margin-top:8px;font-size:13.5px;color:#475569;max-width:640px;line-height:1.6;}
+.pn-hero-stats{display:flex;flex-wrap:wrap;gap:12px;justify-content:flex-end;flex-shrink:0;}
+.pn-hero-chip{border-radius:1rem;background:rgba(255,255,255,.82);border:1.5px solid rgba(15,37,87,.14);box-shadow:0 1px 0 rgba(255,255,255,.5) inset;padding:12px 20px;text-align:right;min-width:150px;}
+.pn-hero-chip .l{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#64748b;font-weight:600;}
+.pn-hero-chip .v{margin-top:4px;font-size:24px;font-weight:700;color:#0f2557;font-family:'Marcellus SC',serif !important;}
+.pn-hero-chip .s{margin-top:4px;font-size:11px;color:#475569;}
+
+/* ---- fixed bottom bar: dock nav + ticker ---- */
+#pnBottomBar{position:fixed;bottom:0;left:0;right:0;z-index:50;}
+#pnBottomBar *{box-sizing:border-box;}
+.pn-dock-nav{background:linear-gradient(90deg,#ffffff,#ffffff 60%,#ecfeff);border-top:1px solid #e2e8f0;box-shadow:0 -2px 16px rgba(15,37,87,.08);}
+.pn-dock{display:flex;align-items:flex-end;justify-content:center;gap:10px;padding:12px 16px;margin:0;list-style:none;}
+.pn-dock-item{position:relative;display:flex;align-items:center;justify-content:center;list-style:none;}
+.pn-dock-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.85);border:1px solid rgba(15,37,87,.14);box-shadow:0 2px 8px rgba(15,37,87,.08);color:#475569;cursor:pointer;text-decoration:none;transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .3s ease,background .3s ease,color .3s ease,border-color .3s ease;transform-origin:bottom center;}
+.pn-dock-item:hover .pn-dock-btn{transform:scale(1.35) translateY(-6px);color:#0f2557;border-color:rgba(15,37,87,.22);box-shadow:0 12px 26px rgba(15,37,87,.2);}
+.pn-dock-item.active .pn-dock-btn{background:linear-gradient(135deg,#0ea472,#059669);color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(5,150,105,.35);}
+.pn-dock-tooltip{position:absolute;bottom:100%;left:50%;transform:translate(-50%,-4px);margin-bottom:6px;padding:4px 10px;border-radius:8px;background:#0f2557;color:#fff;font-size:11px;font-weight:600;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease;z-index:10;}
+.pn-dock-tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#0f2557;}
+.pn-dock-item:hover .pn-dock-tooltip{opacity:1;transform:translate(-50%,-10px);}
+.pn-ticker-bar{background:rgba(255,255,255,.9);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:2px solid #f59e0b;box-shadow:0 -2px 10px rgba(15,37,87,.08);margin:0;text-align:left;font-size:12px;}
+.pn-ticker-row{display:flex;align-items:center;}
+.pn-ticker-label{flex-shrink:0;background:#f59e0b;color:#fff;font-size:11px;font-weight:700;padding:8px 16px;letter-spacing:.05em;}
+.pn-ticker-clip{overflow:hidden;flex:1;}
+.pn-ticker-track{display:flex;gap:48px;width:max-content;white-space:nowrap;padding:8px 0;font-size:12px;color:#475569;animation:pnTicker 38s linear infinite;}
+.pn-ticker-track:hover{animation-play-state:paused;}
+
+/* ============================================================
+   Shared page background (matches index.html)
+   ghat photo + slow Ken Burns zoom + warm wash overlay.
+   The old animated sunrise .scene is hidden, not removed.
+   ============================================================ */
+body{background:linear-gradient(160deg,#f4f7fc 0%,#eef4fb 40%,#fdf7ec 100%);}
+@keyframes pnBgZoom{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+body::before{content:'';position:fixed;inset:0;z-index:-2;background:url('assets/ghat-bg.jpg') center/cover no-repeat;animation:pnBgZoom 45s ease-in-out infinite;will-change:transform;}
+body::after{content:'';position:fixed;inset:0;z-index:-1;background:linear-gradient(160deg,rgba(244,247,252,.90) 0%,rgba(238,244,251,.84) 40%,rgba(253,243,226,.78) 100%);}
+.scene{display:none;}
+</style>
+</head>
+<body>
+
+<div class="scene" aria-hidden="true">
+  <div class="sky"></div><div class="sun"></div><div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div><div class="hills"></div>
+  <svg class="skyline" viewBox="0 0 1440 150" preserveAspectRatio="xMidYMax meet">
+    <g fill="#6a8f8a" opacity="0.85">
+      <path d="M70 150 L70 84 L86 84 L86 70 L98 58 L110 70 L110 84 L126 84 L126 150 Z"/>
+      <rect x="88" y="46" width="20" height="14"/><circle cx="98" cy="42" r="6"/>
+      <path d="M 170 140 Q 228 65 286 140 Q 344 65 402 140 Q 460 65 518 140 Q 576 65 634 140 Q 692 65 750 140 Q 808 65 866 140 Q 924 65 982 140 Q 1040 65 1098 140 Q 1156 65 1214 140 Q 1272 65 1330 140 L 1330 150 L 170 150 Z" opacity="0.35"/>
+      <path d="M 170 140 Q 228 65 286 140 Q 344 65 402 140 Q 460 65 518 140 Q 576 65 634 140 Q 692 65 750 140 Q 808 65 866 140 Q 924 65 982 140 Q 1040 65 1098 140 Q 1156 65 1214 140 Q 1272 65 1330 140" fill="none" stroke="#5a807b" stroke-width="4.5"/>
+      <line x1="170" y1="140" x2="1330" y2="140" stroke="#5a807b" stroke-width="3"/>
+    </g>
+  </svg>
+  <div class="river"><div class="river-shine"></div><div class="sun-trail"></div></div><div class="scene-wash"></div>
+</div>
+
+<!-- ============ NATIONAL STRIP (shared chrome) ============ -->
+<div class="pn-tricolor"></div>
+
+<!-- ============ GOVT HEADER (shared chrome) ============ -->
+<header class="pn-header">
+  <div class="pn-header-inner">
+    <div class="pn-brand">
+      <div class="pn-emblem-ring"><div><img src="assets/ap-logo.png" alt="Government of Andhra Pradesh"></div></div>
+      <img src="assets/pushkaralu-logo.png" alt="Godavari Pushkaralu 2027" class="pn-fest-logo">
+      <div class="pn-brand-text">
+        <div class="pn-brand-gov">GOVERNMENT OF ANDHRA PRADESH</div>
+        <div class="pn-brand-title">PUSHKARA NETRA</div>
+        <div class="pn-brand-sub">పుష్కర నేత్ర · Godavari Pushkaralu 2027 · Smart Command &amp; Control Centre</div>
+      </div>
+    </div>
+
+    <div class="pn-status">
+      <div class="pn-pill pn-pill-live">
+        <span class="pn-dot pn-pulse-dot"></span>
+        <b>SYSTEM LIVE</b>
+        <span style="color:#cbd5e1;">|</span>
+        <span class="pn-clock" id="clock">--:--:--</span>
+        <span style="color:#94a3b8;">IST</span>
+      </div>
+      <div class="pn-pill pn-pill-alert">
+        <span style="color:#64748b;">Alert level:</span>
+        <b style="color:#d97706;">⚠ MODERATE</b>
+      </div>
+    </div>
+
+    <div class="pn-leaders">
+      <div class="pn-leader">
+        <div class="pn-leader-ring cm"><img src="assets/cm.png" alt="Hon'ble Chief Minister"></div>
+        <div class="pn-leader-text">
+          <div class="pn-leader-name">Sri N. Chandrababu Naidu</div>
+          <div class="pn-leader-role cm">Hon'ble Chief Minister</div>
+        </div>
+      </div>
+      <div class="pn-leader">
+        <div class="pn-leader-ring dcm"><img src="assets/deputy-cm.jpg" alt="Hon'ble Deputy Chief Minister"></div>
+        <div class="pn-leader-text">
+          <div class="pn-leader-name">Sri Konidela Pawan Kalyan</div>
+          <div class="pn-leader-role dcm">Hon'ble Deputy Chief Minister</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="app">
+  <!-- ============ HERO HEADER (shared chrome) ============ -->
+  <section class="pn-hero">
+    <div class="pn-hero-left">
+      <div class="pn-hero-badge">🚌 Transport &amp; Shuttles · Live Fleet</div>
+      <div class="pn-hero-title">Transport &amp; <span>Shuttles</span></div>
+      <p class="pn-hero-sub">APSRTC special buses, shuttle loops and parking telemetry keeping pilgrims moving to and from the ghats.</p>
+    </div>
+    <div class="pn-hero-stats">
+      <div class="pn-hero-chip">
+        <div class="l">Special buses</div>
+        <div class="v">1,240</div>
+        <div class="s">APSRTC + shuttle loops</div>
+      </div>
+      <div class="pn-hero-chip">
+        <div class="l">Parking P-2</div>
+        <div class="v" style="color:#d97706;">74%</div>
+        <div class="s">divert to P-5 · Kovvur side</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="surveillance-workspace">
+    
+    <aside class="surveillance-sidebar" id="sidebarNodeList">
+      </aside>
+
+    <main class="surveillance-deck">
+      <div class="deck-action-header">
+        <div class="search-box">
+          <input type="text" id="camSearchInput" placeholder="Search Route or Hub..." oninput="filterCameras()" />
+        </div>
+        <div class="deck-controls">
+          <div class="timestamp-chip" id="deckTimestamp">INTELLIGENT FLEET MANAGEMENT</div>
+          <div class="layout-toggle-group">
+            <button class="layout-btn" onclick="changeMatrix(1)">1×</button>
+            <button class="layout-btn active" onclick="changeMatrix(2)">2×</button>
+            <button class="layout-btn" onclick="changeMatrix(3)">3×</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="video-matrix-grid" id="videoMatrixGrid">
+        </div>
+    </main>
+  </div>
+
+</div>
+
+<!-- ============ DOCK NAV + NEWS TICKER (shared chrome) ============ -->
+<div id="pnBottomBar">
+  <nav class="pn-dock-nav">
+    <ul class="pn-dock">
+      <li class="pn-dock-item">
+        <a href="index.html" class="pn-dock-btn" aria-label="Overview">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>
+        </a>
+        <span class="pn-dock-tooltip">Overview</span>
+      </li>
+      <li class="pn-dock-item">
+        <a href="cctv.html" class="pn-dock-btn" aria-label="CCTV Feeds">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </a>
+        <span class="pn-dock-tooltip">CCTV Feeds</span>
+      </li>
+      <li class="pn-dock-item">
+        <a href="ghats.html" class="pn-dock-btn" aria-label="Ghat Telemetry">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </a>
+        <span class="pn-dock-tooltip">Ghat Telemetry</span>
+      </li>
+      <li class="pn-dock-item">
+        <a href="emergency.html" class="pn-dock-btn" aria-label="Response Unit">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </a>
+        <span class="pn-dock-tooltip">Response Unit</span>
+      </li>
+      <li class="pn-dock-item active">
+        <a href="transport.html" class="pn-dock-btn" aria-label="Transport & Shuttles">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M3 11h18"/><circle cx="7.5" cy="19" r="1.5"/><circle cx="16.5" cy="19" r="1.5"/></svg>
+        </a>
+        <span class="pn-dock-tooltip">Transport &amp; Shuttles</span>
+      </li>
+      <li class="pn-dock-item">
+        <a href="medical.html" class="pn-dock-btn" aria-label="Medical & Health">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </a>
+        <span class="pn-dock-tooltip">Medical &amp; Health</span>
+      </li>
+      <li class="pn-dock-item">
+        <a href="announcements.html" class="pn-dock-btn" aria-label="Public Audio">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+        </a>
+        <span class="pn-dock-tooltip">Public Audio</span>
+      </li>
+    </ul>
+  </nav>
+
+  <footer class="pn-ticker-bar">
+    <div class="pn-ticker-row">
+      <div class="pn-ticker-label">LIVE UPDATES</div>
+      <div class="pn-ticker-clip">
+        <div class="pn-ticker-track">
+          <span>🕉️ Auspicious bathing window 04:12–11:48 IST · next harathi at Pushkar Ghat 18:30</span>
+          <span>🚌 APSRTC: 1,240 special buses operating · Rajahmundry station footfall +32%</span>
+          <span>💧 Dowleswaram barrage discharge steady at ~31,000 cusecs · all ghats SAFE for bathing</span>
+          <span>🅿️ Parking P-2 at 74% — visitors advised to use P-5 (Kovvur side)</span>
+          <span>📱 Pushkara Netra citizen app: 4.2 lakh downloads · e-darshan slots for 17:00 filling fast</span>
+          <span>🕉️ Auspicious bathing window 04:12–11:48 IST · next harathi at Pushkar Ghat 18:30</span>
+          <span>🚌 APSRTC: 1,240 special buses operating · Rajahmundry station footfall +32%</span>
+          <span>💧 Dowleswaram barrage discharge steady at ~31,000 cusecs · all ghats SAFE for bathing</span>
+          <span>🅿️ Parking P-2 at 74% — visitors advised to use P-5 (Kovvur side)</span>
+          <span>📱 Pushkara Netra citizen app: 4.2 lakh downloads · e-darshan slots for 17:00 filling fast</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>
+<div id="pnBottomBarSpacer"></div>
+<script>
+// keep the spacer in sync with the fixed bottom bar's real height
+(function(){
+  var bar = document.getElementById('pnBottomBar');
+  var spacer = document.getElementById('pnBottomBarSpacer');
+  function sync(){ spacer.style.height = bar.offsetHeight + 'px'; }
+  sync();
+  window.addEventListener('resize', sync);
+  window.addEventListener('load', sync);
+})();
+</script>
+
+<div class="modal-overlay" id="streamModal" onclick="closeLiveModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 id="modalCamTitle">FLEET ROUTE INTELLIGENCE</h3>
+      <button class="modal-close" onclick="closeLiveModal()">✕</button>
+    </div>
+    <div class="modal-video-feed" id="modalVideoBg">
+      <div class="modal-video-grid-lines"></div>
+      <div class="analytics-overlay">
+        <div style="font-weight:700; color:var(--sun); margin-bottom:4px;">📊 SMART DISPATCH ANALYTICS</div>
+        <div id="modalRouteSummary">Loading active transit loops...</div>
+      </div>
+      <div style="display:flex; justify-content:space-between; color:#fff; font-size:11px;">
+        <span id="modalCamTimestamp">TIME: --</span>
+        <span>● LIVE ITS TELEMETRY UPSTREAM</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Master Transport, Shuttles & Hubs Database
+const transportData = [
+  { group: 'Satellite Parking Hubs', items: [
+    { id: 'HUB-01', name: 'Morampudi Satellite Yard', personnel: '1400 / 2000', area: '4 mins', speed: '98 buses', deployment: 70, log: 'High volume arrival from Vijayawada highway. Dispatching 5 extra shuttle loops.', level: 'mid', bg: 'linear-gradient(135deg, #134e5e, #71b280)' },
+    { id: 'HUB-02', name: 'Lala Cheruvu Parking Plot', personnel: '850 / 1200', area: '7 mins', speed: '62 buses', deployment: 71, log: 'Inflow steady. Digital signage updating drivers to fill bay sector C.', level: 'ok', bg: 'linear-gradient(135deg, #2c3e50, #bdc3c7)' },
+    { id: 'HUB-03', name: 'Vemagiri Mega Terminal', personnel: '2900 / 3000', area: '1 min', speed: '140 buses', deployment: 96, log: 'CRITICAL CAPACITY: Diverting inbound traffic to Morampudi Hub immediately.', level: 'high', bg: 'linear-gradient(135deg, #a83232, #e05353)' }
+  ]},
+  { group: 'Free Ghat Shuttles (Electric/Diesel)', items: [
+    { id: 'SHU-21', name: 'Morampudi ⇄ Kotilingala Loop', personnel: '24 Active', area: '3-5 mins', speed: '55 Passengers', deployment: 88, log: 'Peak operations active. Directing mini-buses to speed up passenger offloading.', level: 'high', bg: 'linear-gradient(135deg, #cc5a16, #f0932b)' },
+    { id: 'SHU-22', name: 'Lala Cheruvu ⇄ Gowthami Loop', personnel: '18 Active', area: '8 mins', speed: '32 Passengers', deployment: 45, log: 'Traffic delay resolved near railway bridge crossover. Frequency resetting.', level: 'ok', bg: 'linear-gradient(135deg, #0a6f68, #3fb0a6)' },
+    { id: 'SHU-23', name: 'Railway Station ⇄ Saraswati Loop', personnel: '30 Active', area: '2 mins', speed: '68 Passengers', deployment: 92, log: 'Heavy train arrival surge recorded. Fleet running at maximum surge capacity.', level: 'high', bg: 'linear-gradient(135deg, #8b3a62, #ff7a1a)' }
+  ]},
+  { group: 'Special Water Taxis & Launches', items: [
+    { id: 'TAXI-07', name: 'Gowthami-Saraswati Ferry Loop', personnel: '6 Vessels', area: '12 mins', speed: '110 / Boat', deployment: 55, log: 'River cross currents normal. Safety compliance checklist approved.', level: 'ok', bg: 'linear-gradient(135deg, #1d976c, #93f9b9)' }
+  ]}
+];
+
+// Background Ripple Generation Mechanics
+(function() {
+  const river = document.querySelector('.river');
+  if (river) {
+    for (let i = 0; i < 4; i++) {
+      const r = document.createElement('div');
+      r.className = 'ripple';
+      r.style.top = (25 + i * 18) + '%';
+      r.style.animationDuration = (4 + i * 0.8) + 's';
+      r.style.animationDirection = i % 2 ? 'alternate' : 'alternate-reverse';
+      river.appendChild(r);
+    }
+  }
+})();
+
+// Realtime Header Clock Configuration
+function tick() {
+  const n = new Date();
+  const p = x => String(x).padStart(2, '0');
+  const el = document.getElementById('clock');
+  if (el) el.textContent = p(n.getHours()) + ':' + p(n.getMinutes()) + ':' + p(n.getSeconds());
+  
+  const dateOptions = { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' };
+  const formattedDate = n.toLocaleDateString('en-US', dateOptions).toUpperCase();
+  document.getElementById('deckTimestamp').textContent = `${formattedDate} · ${p(n.getHours())}:${p(n.getMinutes())}`;
+}
+setInterval(tick, 1000);
+tick();
+
+// Render Sidebar Index & Central Matrix Cards Panel
+function renderTransportUI() {
+  const sidebar = document.getElementById('sidebarNodeList');
+  const grid = document.getElementById('videoMatrixGrid');
+  if (!sidebar || !grid) return;
+
+  sidebar.innerHTML = '';
+  grid.innerHTML = '';
+
+  transportData.forEach((groupData) => {
+    // Inject Sidebar Header Groupings
+    const title = document.createElement('div');
+    title.className = 'category-title';
+    title.textContent = groupData.group;
+    sidebar.appendChild(title);
+
+    groupData.items.forEach((item) => {
+      // Build Sidebar Nodes
+      const navItem = document.createElement('div');
+      navItem.className = 'cam-list-item';
+      navItem.id = `nav-${item.id}`;
+      navItem.innerHTML = `
+        <span class="cam-item-id">${item.id}</span> — <span>${item.name.replace('Satellite', '').replace('Free Ghat', '')}</span>
+        <span class="status-indicator ${item.level}"></span>
+      `;
+      navItem.onclick = () => focusSingleRoute(item.id);
+      sidebar.appendChild(navItem);
+
+      // Build Interactive Transport Grid Cards
+      const card = document.createElement('div');
+      card.className = 'cam-feed-card';
+      card.setAttribute('data-id', item.id);
+      card.setAttribute('data-name', item.name);
+      card.onclick = () => openLiveModal(item.id, item.name, item.level, item.bg, item.log, item.personnel);
+      
+      card.innerHTML = `
+        <div class="cam-video-simulator" style="background: ${item.bg}"></div>
+        <div class="cam-scanlines"></div>
+        <div class="unit-card-header">
+          <div class="unit-title-block">
+            <h3>${item.name}</h3>
+            <p>Asset Ref: ${item.id} // ITS Sensor Sync</p>
+          </div>
+          <span class="unit-badge ${item.level}">${item.level === 'high' ? 'CONGESTED' : item.level === 'mid' ? 'MODERATE' : 'STABLE'}</span>
+        </div>
+        <div class="metrics-row-grid">
+          <div class="metric-datapoint">
+            <span class="metric-label">Bays / Capacity</span>
+            <span class="unit-value" style="font-size:14px; font-weight:700;">${item.personnel.split(' ')[0]}</span>
+          </div>
+          <div class="metric-datapoint">
+            <span class="metric-label">Headway/Wait</span>
+            <span class="unit-value" style="font-size:14px; font-weight:700;">${item.area}</span>
+          </div>
+          <div class="metric-datapoint">
+            <span class="metric-label">Fleet Size</span>
+            <span class="unit-value" style="font-size:14px; font-weight:700;">${item.speed.split(' ')[0]} <span style="font-size:10px;color:var(--ink-soft)">units</span></span>
+          </div>
+        </div>
+        <div class="incident-log-strip">
+          <strong>Traffic Control Ops:</strong> ${item.log}
+        </div>
+        <div class="deployment-load-bar">
+          <div class="bar-labels">
+            <span>Utilization Index</span>
+            <span>${item.deployment}%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill ${item.level}" style="width: ${item.deployment}%"></div>
+          </div>
+        </div>
+        <div class="unit-footer-actions">
+          <span class="status-indicator-dot">
+            <span class="dot" style="background: var(--${item.level === 'high' ? 'crit' : item.level === 'mid' ? 'warn' : 'good'})"></span>
+            RT-GPS Tracking Stream Active
+          </span>
+          <span>RFID Logged</span>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  });
+}
+
+// Matrix Layout Configuration Switcher
+function changeMatrix(cols) {
+  const grid = document.getElementById('videoMatrixGrid');
+  const btns = document.querySelectorAll('.layout-btn');
+  btns.forEach((btn, idx) => {
+    btn.classList.toggle('active', idx + 1 === cols);
+  });
+
+  grid.className = 'video-matrix-grid';
+  if (cols === 1) grid.classList.add('single-view');
+  if (cols === 3) grid.classList.add('triple-view');
+}
+
+// Dynamic Card Text Search Filter
+function filterCameras() {
+  const query = document.getElementById('camSearchInput').value.toLowerCase();
+  const cards = document.querySelectorAll('.cam-feed-card');
+  
+  cards.forEach(card => {
+    const id = card.getAttribute('data-id').toLowerCase();
+    const name = card.getAttribute('data-name').toLowerCase();
+    if (id.includes(query) || name.includes(query)) {
+      card.style.display = 'flex';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+// Sidebar Hub Target Focus Trigger
+function focusSingleRoute(routeId) {
+  document.querySelectorAll('.cam-list-item').forEach(item => item.classList.remove('active'));
+  const activeNavItem = document.getElementById(`nav-${routeId}`);
+  if (activeNavItem) activeNavItem.classList.add('active');
+
+  document.getElementById('camSearchInput').value = routeId;
+  filterCameras();
+}
+
+// Detail Intercept Modal Window Control Layers
+function openLiveModal(id, name, level, designSky, log, capacity) {
+  const overlay = document.getElementById('streamModal');
+  if (!overlay) return;
+  document.getElementById('modalCamTitle').textContent = `${id} // SMART TRANSIT HUB TELEMETRY LINK`;
+  document.getElementById('modalRouteSummary').innerHTML = `
+    <strong>Target Corridor:</strong> ${name}<br/>
+    <strong>Congestion Rating:</strong> ${level.toUpperCase()}<br/>
+    <strong>Active Capacity Utilization:</strong> ${capacity}<br/><br/>
+    <strong>Integrated Logistics Advisory:</strong> ${log}
+  `;
+  document.getElementById('modalVideoBg').style.background = designSky;
+  document.getElementById('modalCamTimestamp').textContent = `ITS STREAM STAMP: ${new Date().toLocaleTimeString()}`;
+  overlay.classList.add('active');
+}
+
+function closeLiveModal() {
+  const overlay = document.getElementById('streamModal');
+  if (overlay) overlay.classList.remove('active');
+}
+
+// Boot Dashboard System Sequence
+renderTransportUI();
+</script>
+</body>
+</html>
